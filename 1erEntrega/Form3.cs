@@ -49,22 +49,60 @@ namespace _1erEntrega
 
         private void button1_Click(object sender, EventArgs e)
         {
-            IsPlaying = false;
-            
-            // Optionally clear the histogram when stopping playback
-            if (pictureBoxHistogram.Image != null)
+            if (capture != null)
             {
-                Bitmap emptyHistogram = new Bitmap(300, 300);
-                Graphics g = Graphics.FromImage(emptyHistogram);
-                g.Clear(this.BackColor);
+                // Stop playback
+                IsPlaying = false;
+                button2.BackgroundImage = global::_1erEntrega.Properties.Resources.play;
                 
-                // Draw axes
-                Pen plumaEjes = new Pen(Color.Coral);
-                g.DrawLine(plumaEjes, 19, 271, 277, 271);
-                g.DrawLine(plumaEjes, 19, 270, 19, 14);
+                // Rewind to beginning
+                CurrentFrameNo = 0;
+                trackBar1.Value = 0;
                 
-                pictureBoxHistogram.Image = emptyHistogram;
-                g.Dispose();
+                // Show first frame
+                capture.Set(Emgu.CV.CvEnum.CapProp.PosFrames, 0);
+                capture.Read(CurrentFrame);
+                
+                // Apply the current filter to the first frame
+                switch (filter)
+                {
+                    case 1:
+                        original = AberracionCromaticaFiltro(CurrentFrame.ToBitmap());
+                        break;
+                    case 2:
+                        original = colorizarFiltro(CurrentFrame.ToBitmap());
+                        break;
+                    case 3:
+                        original = contrasteFiltro(CurrentFrame.ToBitmap());
+                        break;
+                    case 4:
+                        original = ruidoFiltro(CurrentFrame.ToBitmap());
+                        break;
+                    case 5:
+                        original = InvertirFiltro(CurrentFrame.ToBitmap());
+                        break;
+                    case 6:
+                        original = MosaicoFiltro(CurrentFrame.ToBitmap());
+                        break;
+                    case 7:
+                        original = FlipFiltro(CurrentFrame.ToBitmap());
+                        break;
+                    case 8:
+                        original = SupresionDFiltro(CurrentFrame.ToBitmap());
+                        break;
+                    case 9:
+                        original = DegradadoFiltro(CurrentFrame.ToBitmap());
+                        break;
+                    case 10:
+                        original = BrilloFiltro(CurrentFrame.ToBitmap());
+                        break;
+                    default:
+                        original = CurrentFrame.ToBitmap();
+                        break;
+                }
+                
+                pictureBox1.Image = original;
+                UpdateHistogram(original);
             }
         }
 
@@ -72,12 +110,24 @@ namespace _1erEntrega
         {
             if (capture != null)
             {
-                IsPlaying = true;
-                PlayVideo();
+                // Toggle playing state
+                IsPlaying = !IsPlaying;
+                
+                if (IsPlaying)
+                {
+                    // Change to pause icon when playing
+                    button2.BackgroundImage = global::_1erEntrega.Properties.Resources.rep1;
+                    PlayVideo();
+                }
+                else
+                {
+                    // Change to play icon when paused
+                    button2.BackgroundImage = global::_1erEntrega.Properties.Resources.play;
+                }
             }
             else
             {
-                IsPlaying = false;
+                MessageBox.Show("Please load a video first.", "No Video", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 

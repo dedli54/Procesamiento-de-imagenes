@@ -71,14 +71,7 @@ namespace _1erEntrega
         }
 
         // En el método button1_Click de Form1
-        private void button1_Click(object sender, EventArgs e)
-        {
-            UpdateHistogram();
-            Form4 NewWindow = new Form4(histogramaR, histogramaG, histogramaB);
-            NewWindow.ShowDialog();
-        }
-
-
+      
         private void pictureBox1_Click(object sender, EventArgs e)
         {
 
