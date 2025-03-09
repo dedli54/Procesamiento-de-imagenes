@@ -42,35 +42,35 @@ namespace _1erEntrega
 
         private void button4_Click(object sender, EventArgs e)
         {
-            // Create Form2
+            
             Form2 newWindow = new Form2();
             
-            // Set up event handler for Form2's closing
+         
             newWindow.FormClosed += (s, args) => this.Show();
             
-            // Hide the main form (Form1)
+          
             this.Hide();
             
-            // Show Form2 as a regular form (not dialog)
+        
             newWindow.Show();
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
-            // Create Form3
+            
             Form3 newWindow = new Form3();
             
-            // Set up event handler for Form3's closing
+        
             newWindow.FormClosed += (s, args) => this.Show();
             
-            // Hide the main form (Form1)
+  
             this.Hide();
             
-            // Show Form3 as a regular form (not dialog)
+          
             newWindow.Show();
         }
 
-        // En el método button1_Click de Form1
+    
       
         private void pictureBox1_Click(object sender, EventArgs e)
         {
@@ -114,7 +114,7 @@ namespace _1erEntrega
                 resultado = original;
                 apilado = resultado;
                 
-                // Clear the background image when loading a new image
+                // Remove the bg image wehn an image is loaded
                 pictureBox1.BackgroundImage = null;
                 
                 UpdateHistogram();
@@ -182,7 +182,7 @@ namespace _1erEntrega
                     colorOriginal = apilado.GetPixel(x, y);
 
                     Grises = colorOriginal.R * 0.267f + colorOriginal.G * 0.678f + colorOriginal.B * 0.0593f;
-                    // Clamp the value to ensure it's within the valid range
+                    
                     Grises = Clamp(Grises, 0, 255);
                     // Create the grayscale color
                     colorResultante = Color.FromArgb((int)Grises, (int)Grises, (int)Grises);
@@ -220,7 +220,7 @@ namespace _1erEntrega
                 {
                     //Get pixel color
                     colorOriginal = apilado.GetPixel(x, y);
-                    //process and get the new colorxdd le salia el ingles de repente
+                    //process and get the new colorxdd
                     r = ((((colorOriginal.R / 255.0f) - 0.5f) * totalContraste) + 0.5f) * 255;
                     if (r > 255) r = 255;
                     if (r < 0) r = 0;
@@ -710,7 +710,7 @@ namespace _1erEntrega
                 int[] scaledHistG = new int[256];
                 int[] scaledHistB = new int[256];
 
-                // Apply the same scaling as in Form4
+               
                 for (int n = 0; n < 256; n++)
                 {
                     scaledHistR[n] = (int)((float)histogramaR[n] / (float)mayor * 256.0f);
@@ -719,23 +719,23 @@ namespace _1erEntrega
                 }
 
                 // Create bitmap for histogram
-                Bitmap histogramBitmap = new Bitmap(300, 300); // Match Form4's height
+                Bitmap histogramBitmap = new Bitmap(300, 300); 
                 Graphics g = Graphics.FromImage(histogramBitmap);
                 
-                // Clear background with form's background color instead of black
-                g.Clear(this.BackColor); // Use form's background color
+                
+                g.Clear(this.BackColor); 
                 
                 // Create pens
                 Pen plumaR = new Pen(Color.Red);
                 Pen plumaG = new Pen(Color.Green);
                 Pen plumaB = new Pen(Color.Blue);
-                Pen plumaEjes = new Pen(Color.Coral); // Match Form4's axis color
+                Pen plumaEjes = new Pen(Color.Coral); 
                 
-                // Draw axes - match Form4's coordinates
+                
                 g.DrawLine(plumaEjes, 19, 271, 277, 271);
                 g.DrawLine(plumaEjes, 19, 270, 19, 14);
                 
-                // Draw histogram bars using the scaled values directly (like Form4)
+                // Draw histogram bars using the scaled values directly
                 for (int n = 0; n < 256; n++)
                 {
                     g.DrawLine(plumaR, n + 20, 270, n + 20, 270 - scaledHistR[n]);

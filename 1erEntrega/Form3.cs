@@ -115,19 +115,19 @@ namespace _1erEntrega
                 
                 if (IsPlaying)
                 {
-                    // Change to pause icon when playing
+                    // Change to pause icon when playing because we cool
                     button2.BackgroundImage = global::_1erEntrega.Properties.Resources.rep1;
                     PlayVideo();
                 }
                 else
                 {
-                    // Change to play icon when paused
+                    // Change to play icon when paused because we cool xd
                     button2.BackgroundImage = global::_1erEntrega.Properties.Resources.play;
                 }
             }
             else
             {
-                MessageBox.Show("Please load a video first.", "No Video", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Carga un video primero.", "No Video", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -271,8 +271,7 @@ namespace _1erEntrega
                 pictureBox1.Image.Dispose();
                 pictureBox1.Image = null;
             }
-            
-            // Close the form - this will trigger the FormClosed event
+        
             this.Close();
         }
 
@@ -786,7 +785,6 @@ namespace _1erEntrega
             int[] scaledHistG = new int[256];
             int[] scaledHistB = new int[256];
         
-            // Apply the same scaling as in Form4
             for (int n = 0; n < 256; n++)
             {
                 scaledHistR[n] = (int)((float)histogramaR[n] / (float)mayor * 256.0f);
@@ -811,7 +809,7 @@ namespace _1erEntrega
             g.DrawLine(plumaEjes, 19, 271, 277, 271);
             g.DrawLine(plumaEjes, 19, 270, 19, 14);
             
-            // Draw histogram bars using the scaled values directly (like Form4)
+            // Draw histogram bars using the scaled values directly
             for (int n = 0; n < 256; n++)
             {
                 g.DrawLine(plumaR, n + 20, 270, n + 20, 270 - scaledHistR[n]);
