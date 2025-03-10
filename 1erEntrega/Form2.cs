@@ -34,8 +34,13 @@ namespace _1erEntrega
         {
             filterInfoCollection = new FilterInfoCollection(FilterCategory.VideoInputDevice);
             foreach (FilterInfo filterInfo in filterInfoCollection)
-            comboBoxCamera.Items.Add(filterInfo.Name);
-            comboBoxCamera.SelectedIndex = 0;
+                comboBoxCamera.Items.Add(filterInfo.Name);
+            
+            if (comboBoxCamera.Items.Count > 0)
+                comboBoxCamera.SelectedIndex = 0;
+            
+            // Initialize the HSV wheel
+            DrawHSVWheel();
         }
 
         
@@ -288,6 +293,12 @@ private string GetColorName(Color color)
             {
                 camera.Dispose();
             }
+            
+            // Dispose of the HSV wheel image
+            if (hsvWheelPictureBox.Image != null)
+            {
+                hsvWheelPictureBox.Image.Dispose();
+            }
         }
 
         private void tableLayoutPanel1_Paint(object sender, PaintEventArgs e)
@@ -371,6 +382,9 @@ private string GetColorName(Color color)
             rgbValuesLabel.Text = $"RGB: R:{pixelColor.R}, G:{pixelColor.G}, B:{pixelColor.B}";
             hsvValuesLabel.Text = $"HSV: H:{hue:F0}°, S:{saturation:P0}, V:{value:P0} ({hsvQuadrant})";
             
+            // Update the HSV wheel with the selected color position
+            HighlightColorOnWheel(hue, saturation, value);
+            
             // Clean up
             bitmap.Dispose();
         }
@@ -449,6 +463,122 @@ private string GetColorName(Color color)
             return $"{hueRange} {intensityDesc}";
         }
 
+private void DrawHSVWheel()
+{
+    // Create a bitmap for the HSV wheel
+    int width = hsvWheelPictureBox.Width;
+    int height = hsvWheelPictureBox.Height;
+    Bitmap hsvWheel = new Bitmap(width, height);
+    
+    // Calculate center and radius
+    int centerX = width / 2;
+    int centerY = height / 2;
+    int radius = Math.Min(centerX, centerY) - 2; // Leave a small margin
+    
+    using (Graphics g = Graphics.FromImage(hsvWheel))
+    {
+        g.Clear(panel2.BackColor);
+        
+        // Draw the HSV wheel
+        for (int y = 0; y < height; y++)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                // Calculate distance from center
+                double dx = x - centerX;
+                double dy = y - centerY;
+                double distance = Math.Sqrt(dx * dx + dy * dy);
+                
+                if (distance <= radius)
+                {
+                    // Convert to polar coordinates
+                    double angle = Math.Atan2(dy, dx);
+                    // Convert angle to degrees (0-360)
+                    double hue = ((angle * 180.0 / Math.PI) + 90) % 360;
+                    // Calculate saturation (0-1) based on distance from center
+                    double saturation = distance / radius;
+                    // Set value/brightness to 1
+                    double value = 1.0;
+                    
+                    // Convert HSV to RGB
+                    Color pixelColor = HSVToRGB(hue, saturation, value);
+                    hsvWheel.SetPixel(x, y, pixelColor);
+                }
+            }
+        }
+        
+        // Draw quadrant dividing lines for visual reference
+        Pen linePen = new Pen(Color.FromArgb(120, Color.White), 1);
+        g.DrawLine(linePen, centerX, 0, centerX, height);
+        g.DrawLine(linePen, 0, centerY, width, centerY);
+        g.DrawEllipse(linePen, centerX - radius, centerY - radius, radius * 2, radius * 2);
+    }
+    
+    // Set as the picture box image
+    if (hsvWheelPictureBox.Image != null)
+    {
+        hsvWheelPictureBox.Image.Dispose();
+    }
+    hsvWheelPictureBox.Image = hsvWheel;
+}
+        private Color HSVToRGB(double hue, double saturation, double value)
+        {
+            int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+            double f = hue / 60 - Math.Floor(hue / 60);
+            
+            value = value * 255;
+            int v = Convert.ToInt32(value);
+            int p = Convert.ToInt32(value * (1 - saturation));
+            int q = Convert.ToInt32(value * (1 - f * saturation));
+            int t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
+            
+            if (hi == 0)
+                return Color.FromArgb(255, v, t, p);
+            else if (hi == 1)
+                return Color.FromArgb(255, q, v, p);
+            else if (hi == 2)
+                return Color.FromArgb(255, p, v, t);
+            else if (hi == 3)
+                return Color.FromArgb(255, p, q, v);
+            else if (hi == 4)
+                return Color.FromArgb(255, t, p, v);
+            else
+                return Color.FromArgb(255, v, p, q);
+        }
+
+        private void HighlightColorOnWheel(double hue, double saturation, double value)
+        {
+            // Always create a fresh wheel to avoid accumulating markers
+            DrawHSVWheel();
+            
+            // Create a copy of the fresh HSV wheel
+            Bitmap wheelWithMarker = new Bitmap(hsvWheelPictureBox.Image);
+            
+            int width = wheelWithMarker.Width;
+            int height = wheelWithMarker.Height;
+            int centerX = width / 2;
+            int centerY = height / 2;
+            int radius = Math.Min(centerX, centerY) - 2;
+            
+            // Convert HSV to position on wheel
+            // Adjust angle calculation: hue degrees to radians, then adjust for wheel orientation
+            double angleRad = ((hue - 90) * Math.PI) / 180.0;
+            int x = centerX + (int)(saturation * radius * Math.Cos(angleRad));
+            int y = centerY + (int)(saturation * radius * Math.Sin(angleRad));
+            
+            // Draw marker
+            using (Graphics g = Graphics.FromImage(wheelWithMarker))
+            {
+                // Draw crosshair
+                g.DrawEllipse(new Pen(Color.White, 2), x - 5, y - 5, 10, 10);
+                g.DrawLine(new Pen(Color.Black, 1), x - 6, y, x + 6, y);
+                g.DrawLine(new Pen(Color.Black, 1), x, y - 6, x, y + 6);
+            }
+            
+            // Update the picture box
+            hsvWheelPictureBox.Image = wheelWithMarker;
+        }
+
       
         //private void DrawClickedPointMarker(Image<Bgr, byte> frame)
         //{
@@ -473,6 +603,11 @@ private string GetColorName(Color color)
         //}
 
         private void panel2_Paint(object sender, PaintEventArgs e)
+        {
+
+        }
+
+        private void hsvWheelPictureBox_Click(object sender, EventArgs e)
         {
 
         }
