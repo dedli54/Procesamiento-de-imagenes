@@ -71,7 +71,7 @@ namespace _1erEntrega
                     // Draw the clicked point marker if there is one
                     if (hasClickedPoint)
                     {
-                        DrawClickedPointMarker(frame);
+                        //DrawClickedPointMarker(frame);
                     }
                     
                     // dibujar cajita de color
@@ -334,27 +334,27 @@ namespace _1erEntrega
             quadrantInfoLabel.Text = $"Cuadrante: {quadrant}";
         }
 
-        private void DrawClickedPointMarker(Image<Bgr, byte> frame)
-        {
-            if (!hasClickedPoint)
-                return;
+        //private void DrawClickedPointMarker(Image<Bgr, byte> frame)
+        //{
+        //    if (!hasClickedPoint)
+        //        return;
                 
-            int size = 10;
-            CvInvoke.Line(frame,
-                          new Point(lastClickedPoint.X - size, lastClickedPoint.Y),
-                          new Point(lastClickedPoint.X + size, lastClickedPoint.Y),
-                          new MCvScalar(0, 255, 255), 2); 
+        //    int size = 10;
+        //    CvInvoke.Line(frame,
+        //                  new Point(lastClickedPoint.X - size, lastClickedPoint.Y),
+        //                  new Point(lastClickedPoint.X + size, lastClickedPoint.Y),
+        //                  new MCvScalar(0, 255, 255), 2); 
                           
-            CvInvoke.Line(frame,
-                          new Point(lastClickedPoint.X, lastClickedPoint.Y - size),
-                          new Point(lastClickedPoint.X, lastClickedPoint.Y + size),
-                          new MCvScalar(0, 255, 255), 2);
+        //    CvInvoke.Line(frame,
+        //                  new Point(lastClickedPoint.X, lastClickedPoint.Y - size),
+        //                  new Point(lastClickedPoint.X, lastClickedPoint.Y + size),
+        //                  new MCvScalar(0, 255, 255), 2);
                           
-            CvInvoke.Circle(frame,
-                           lastClickedPoint,
-                           size + 2,
-                           new MCvScalar(0, 255, 255), 2);
-        }
+        //    CvInvoke.Circle(frame,
+        //                   lastClickedPoint,
+        //                   size + 2,
+        //                   new MCvScalar(0, 255, 255), 2);
+        //}
 
         private void DrawQuadrants(Image<Bgr, byte> frame)
         {
