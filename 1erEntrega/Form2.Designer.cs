@@ -36,6 +36,7 @@
             this.colorDisplayPanel = new System.Windows.Forms.Panel();
             this.colorNameLabel = new System.Windows.Forms.Label();
             this.rgbValuesLabel = new System.Windows.Forms.Label();
+            this.hsvValuesLabel = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
             this.comboBoxCamera = new System.Windows.Forms.ComboBox();
             this.ColorIdentity = new System.Windows.Forms.Label();
@@ -93,6 +94,7 @@
             this.panel2.Controls.Add(this.colorDisplayPanel);
             this.panel2.Controls.Add(this.colorNameLabel);
             this.panel2.Controls.Add(this.rgbValuesLabel);
+            this.panel2.Controls.Add(this.hsvValuesLabel);
             this.panel2.Controls.Add(this.button2);
             this.panel2.Controls.Add(this.comboBoxCamera);
             this.panel2.Controls.Add(this.ColorIdentity);
@@ -131,6 +133,16 @@
             this.rgbValuesLabel.Size = new System.Drawing.Size(69, 25);
             this.rgbValuesLabel.TabIndex = 2;
             this.rgbValuesLabel.Text = "RGB: ";
+            // 
+            // hsvValuesLabel
+            // 
+            this.hsvValuesLabel.AutoSize = true;
+            this.hsvValuesLabel.Location = new System.Drawing.Point(30, 510);
+            this.hsvValuesLabel.Margin = new System.Windows.Forms.Padding(6, 0, 6, 0);
+            this.hsvValuesLabel.Name = "hsvValuesLabel";
+            this.hsvValuesLabel.Size = new System.Drawing.Size(69, 25);
+            this.hsvValuesLabel.TabIndex = 3;
+            this.hsvValuesLabel.Text = "HSV: ";
             // 
             // button2
             // 
@@ -199,5 +211,6 @@
         private System.Windows.Forms.Panel colorDisplayPanel;
         private System.Windows.Forms.Label colorNameLabel;
         private System.Windows.Forms.Label rgbValuesLabel;
+        private System.Windows.Forms.Label hsvValuesLabel;
     }
 }

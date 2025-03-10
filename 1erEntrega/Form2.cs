@@ -14,7 +14,6 @@ namespace _1erEntrega
         FilterInfoCollection filterInfoCollection;
         private VideoCapture camera;
         private bool OpenCamera = true;
-        private Label quadrantInfoLabel;
         private Label clickedPixelHeaderLabel;
 
         // Track el ultimo punto clickeado
@@ -28,11 +27,6 @@ namespace _1erEntrega
             InitializeComponent();
             
             // Crear la info del cuadrante cuando se inicialican las cosas
-            quadrantInfoLabel = new Label();
-            quadrantInfoLabel.AutoSize = true;
-            quadrantInfoLabel.Location = new System.Drawing.Point(15 , 205);
-            quadrantInfoLabel.Text = "Cuadrante: ";
-            panel2.Controls.Add(quadrantInfoLabel);
             
         }
 
@@ -62,45 +56,22 @@ namespace _1erEntrega
                     if (frame == null)
                         break;
 
-                    // Agarra color dominante 
-                    KeyValuePair<Color, int> dominantColor = GetDominantColor(frame);
-                    
-                    // Draw quadrants on the frame
-                    DrawQuadrants(frame);
-                    
-                    // Draw the clicked point marker if there is one
-                    if (hasClickedPoint)
-                    {
-                        //DrawClickedPointMarker(frame);
-                    }
-                    
-                    // dibujar cajita de color
-                    DrawColorBox(frame, dominantColor.Key);
-                    
-                    // Display del nombre y valores rgb
-                    string colorName = GetColorName(dominantColor.Key);
-                    string colorInfo = $"{colorName} - R:{dominantColor.Key.R}, G:{dominantColor.Key.G}, B:{dominantColor.Key.B}";
-                    CvInvoke.PutText(frame, colorInfo, new Point(10, 30), 
-                                     Emgu.CV.CvEnum.FontFace.HersheyDuplex, 0.6, 
-                                     new MCvScalar(255, 255, 255));
-
-                    // Actualizar la imagen en CameraBox
+                    // Update the image in CameraBox
                     CameraBox.Invoke((MethodInvoker)delegate
                     {
                         CameraBox.Image = frame.ToBitmap();
                         
-                        // Only update the overall color display if no pixel has been clicked
+                        // Only clear the color display if no pixel has been clicked
                         if (!hasClickedPoint)
                         {
-                            // Update external color display for dominant color
-                            colorDisplayPanel.BackColor = dominantColor.Key;
-                            colorNameLabel.Text = $"Color: {colorName}";
-                            rgbValuesLabel.Text = $"RGB: R:{dominantColor.Key.R}, G:{dominantColor.Key.G}, B:{dominantColor.Key.B}";
-                            quadrantInfoLabel.Text = "Cuadrante: "; 
+                            // Clear color display when no pixel is selected
+                            colorDisplayPanel.BackColor = Color.Gray;
+                            colorNameLabel.Text = "Color: (Ninguno)";
+                            rgbValuesLabel.Text = "RGB: --";
                         }
                     });
 
-                    // Salir si se presiona una tecla o si se cierra el formulario
+                    // Exit if a key is pressed or the form is closed
                     if (CvInvoke.WaitKey(1) >= 0 || !OpenCamera)
                         break;
                 }
@@ -109,134 +80,196 @@ namespace _1erEntrega
             camera.Dispose();
         }
 
-        private KeyValuePair<Color, int> GetDominantColor(Image<Bgr, byte> image)
-        {
-            // Low ress para performance
-            int sampleWidth = 50;
-            int sampleHeight = 50;
 
-            Image<Bgr, byte> resizedImage = image.Resize(sampleWidth, sampleHeight, Emgu.CV.CvEnum.Inter.Linear);
-            
-            // Dictionary for the colors
-            Dictionary<Color, int> colorCounts = new Dictionary<Color, int>();
-            
-            // see each pixel color 
-            for (int y = 0; y < resizedImage.Height; y++)
-            {
-                for (int x = 0; x < resizedImage.Width; x++)
-                {
-                    Bgr pixel = resizedImage[y, x];
-                    // bgr a stardar color
-                    Color color = Color.FromArgb(
-                        (int)(pixel.Red), 
-                        (int)(pixel.Green), 
-                        (int)(pixel.Blue));
-                    
-                    // simplify to make it easier to recognice the color lmao
-                    color = SimplifyColor(color);
-                    
-                    if (colorCounts.ContainsKey(color))
-                    {
-                        colorCounts[color]++;
-                    }
-                    else
-                    {
-                        colorCounts.Add(color, 1);
-                    }
-                }
-            }
-            
-            // highest count, es el color
-            return colorCounts.OrderByDescending(c => c.Value).First();
+private string GetColorName(Color color)
+{
+    // Convertir valores RGB a valores entre 0 y 1
+    double r = color.R / 255.0;
+    double g = color.G / 255.0;
+    double b = color.B / 255.0;
+    
+    // Calcular valor máximo y mínimo
+    double max = Math.Max(r, Math.Max(g, b));
+    double min = Math.Min(r, Math.Min(g, b));
+    double delta = max - min;
+    
+    // Calcular luminancia (brightness)
+    double brightness = max;
+    
+    // Calcular saturación
+    double saturation = max == 0 ? 0 : delta / max;
+    
+    // Verificar si es un color gris (baja saturación)
+    if (saturation < 0.1)
+    {
+        if (brightness > 0.9) return "Blanco";
+        if (brightness > 0.6) return "Gris Claro";
+        if (brightness > 0.4) return "Gris";
+        if (brightness > 0.15) return "Gris Oscuro";
+        return "Negro";
+    }
+    
+    // Calcular tono (hue)
+    double hue = 0;
+    if (delta > 0)
+    {
+        if (max == r)
+        {
+            hue = ((g - b) / delta) % 6;
+        }
+        else if (max == g)
+        {
+            hue = (b - r) / delta + 2;
+        }
+        else // max == b
+        {
+            hue = (r - g) / delta + 4;
         }
         
-        private Color SimplifyColor(Color color)
+        hue *= 60; // Convertir a grados (0-360)
+        if (hue < 0) hue += 360;
+    }
+    
+    // Determinar color basado en tono, saturación y brillo
+    
+    // Rojos (hue: 0-20 o 330-360)
+    if ((hue >= 0 && hue < 20) || (hue >= 330 && hue <= 360))
+    {
+        if (saturation > 0.7 && brightness > 0.7) return "Rojo";
+        if (saturation > 0.7 && brightness > 0.5 && brightness <= 0.7) return "Rojo Oscuro";
+        if (saturation > 0.4 && saturation <= 0.7 && brightness > 0.7) return "Rojo Claro";
+        if (saturation > 0.4 && brightness > 0.4 && brightness <= 0.6) return "Rojo Vino";
+        if (saturation > 0.3 && brightness > 0.25 && brightness <= 0.4) return "Rojo Carmesí";
+        if (saturation <= 0.4 && brightness > 0.6) return "Rosa Pálido";
+        return "Rojo";
+    }
+    
+    // Naranjas (hue: 20-40)
+    if (hue >= 20 && hue < 40)
+    {
+        if (saturation > 0.7 && brightness > 0.8) return "Naranja";
+        if (saturation > 0.7 && brightness > 0.6 && brightness <= 0.8) return "Naranja Oscuro";
+        if (saturation > 0.7 && brightness <= 0.6) return "Marrón";
+        if (saturation > 0.4 && saturation <= 0.7 && brightness > 0.7) return "Ámbar";
+        if (saturation <= 0.4 && brightness > 0.8) return "Durazno";
+        return "Naranja";
+    }
+    
+    // Amarillos (hue: 40-60)
+    if (hue >= 40 && hue < 60)
+    {
+        if (saturation > 0.7 && brightness > 0.8) return "Amarillo";
+        if (saturation > 0.7 && brightness > 0.5 && brightness <= 0.8) return "Amarillo Oscuro";
+        if (saturation > 0.4 && saturation <= 0.7 && brightness > 0.5) return "Mostaza";
+        if (saturation <= 0.4 && brightness > 0.8) return "Crema";
+        return "Amarillo";
+    }
+    
+    // Verdes (hue: 60-140)
+    if (hue >= 60 && hue < 140)
+    {
+        if (hue < 80)
         {
-            // Quantize colors to reduce number of unique colors, basically limit the amount of colors avelibale
-            int quantizationLevel = 32;
-            int r = ((color.R + quantizationLevel / 2) / quantizationLevel) * quantizationLevel;
-            int g = ((color.G + quantizationLevel / 2) / quantizationLevel) * quantizationLevel;
-            int b = ((color.B + quantizationLevel / 2) / quantizationLevel) * quantizationLevel;
-            
-            // Clamp values
-            r = Math.Min(255, Math.Max(0, r));
-            g = Math.Min(255, Math.Max(0, g));
-            b = Math.Min(255, Math.Max(0, b));
-            
-            return Color.FromArgb(r, g, b);
+            if (saturation > 0.7 && brightness > 0.7) return "Verde Limón";
+            if (saturation > 0.7 && brightness > 0.4 && brightness <= 0.7) return "Verde Oliva";
+            if (saturation <= 0.7 && brightness > 0.7) return "Verde Pálido";
+            return "Verde Amarillento";
         }
-        
-        private void DrawColorBox(Image<Bgr, byte> frame, Color color)
+        else if (hue < 100)
         {
-            // squere of the dominant color
-            int boxSize = 60;
-            Rectangle rect = new Rectangle(frame.Width - boxSize - 10, 10, boxSize, boxSize);
-            
-            // fill the rectangle 
-            CvInvoke.Rectangle(frame, rect, new MCvScalar(color.B, color.G, color.R), -1);
-            
-            // un borde pa que se vea
-            CvInvoke.Rectangle(frame, rect, new MCvScalar(255, 255, 255), 2);
+            if (saturation > 0.7 && brightness > 0.7) return "Verde";
+            if (saturation > 0.7 && brightness > 0.4 && brightness <= 0.7) return "Verde Oscuro";
+            if (saturation > 0.4 && saturation <= 0.7 && brightness > 0.5) return "Verde Bosque";
+            return "Verde";
         }
-        
-        private string GetColorName(Color color)
+        else
         {
-            // Colores básicos
-            if (color.R > 220 && color.G < 60 && color.B < 60) return "Rojo";
-            if (color.R > 220 && color.G > 220 && color.B < 60) return "Amarillo";
-            if (color.R < 60 && color.G > 220 && color.B < 60) return "Verde";
-            if (color.R < 60 && color.G < 60 && color.B > 220) return "Azul";
-            if (color.R > 220 && color.G < 60 && color.B > 220) return "Magenta";
-            if (color.R < 60 && color.G > 180 && color.B > 180) return "Cian";
-            
-            // Tonos naranjas y marrones
-            if (color.R > 220 && color.G > 130 && color.G < 180 && color.B < 60) return "Naranja";
-            if (color.R > 180 && color.G > 90 && color.G < 150 && color.B < 90) return "Marrón";
-            if (color.R > 200 && color.G > 160 && color.G < 200 && color.B < 120) return "Ámbar";
-            if (color.R > 160 && color.G > 80 && color.G < 120 && color.B < 80) return "Marrón Rojizo";
-            
-            // Tonos verdes
-            if (color.R < 120 && color.G > 180 && color.B < 120) return "Verde Limón";
-            if (color.R > 60 && color.R < 150 && color.G > 180 && color.B < 120) return "Verde Oliva";
-            if (color.R < 80 && color.G > 120 && color.G < 180 && color.B < 120) return "Verde Bosque";
-            
-            // Tonos azules
-            if (color.R < 100 && color.G < 100 && color.B > 180) return "Azul Marino";
-            if (color.R < 130 && color.G > 130 && color.B > 220) return "Azul Celeste";
-            if (color.R > 130 && color.G > 180 && color.B > 220) return "Azul Claro";
-            if (color.R < 60 && color.G < 150 && color.B > 180) return "Azul Turquesa";
-            
-            // Tonos rojos y rosas
-            if (color.R > 220 && color.G > 100 && color.G < 180 && color.B > 120 && color.B < 180) return "Rosa";
-            if (color.R > 220 && color.G > 150 && color.B > 180) return "Rosa Claro";
-            
-            // Tonos púrpura
-            if (color.R > 150 && color.R < 200 && color.G < 100 && color.B > 180) return "Púrpura";
-            if (color.R > 120 && color.R < 180 && color.G < 80 && color.B > 130) return "Violeta";
-            if (color.R > 180 && color.G < 150 && color.B > 180) return "Lila";
-            
-            // Grises y neutros
-            if (color.R < 60 && color.G < 60 && color.B < 60) return "Negro";
-            if (color.R > 220 && color.G > 220 && color.B > 220) return "Blanco";
-            if (Math.Abs(color.R - color.G) < 20 && Math.Abs(color.G - color.B) < 20 && Math.Abs(color.R - color.B) < 20)
-            {
-                if (color.R > 180) return "Gris Claro";
-                else if (color.R > 100) return "Gris";
-                else if (color.R > 50) return "Gris Oscuro";
-            }
-            
-            // Colores adicionales
-            if (color.R > 150 && color.G < 150 && color.B > 150) return "Morado";
-            if (color.R > 180 && color.G > 80 && color.G < 130 && color.B > 180) return "Lavanda";
-            if (color.R > 180 && color.G > 220 && color.B > 180 && color.B < 220) return "Menta";
-            if (color.R > 220 && color.G > 180 && color.G < 220 && color.B < 150) return "Durazno";
-            if (color.R > 160 && color.G > 40 && color.G < 100 && color.B < 80) return "Terracota";
-            if (color.R > 220 && color.G > 170 && color.B < 120) return "Beige";
-            if (color.R > 200 && color.G > 200 && color.B > 120 && color.B < 180) return "Crema";
-            
-            // Color desconocido
-            return "No se";
+            if (saturation > 0.7 && brightness > 0.7) return "Verde Agua";
+            if (saturation > 0.7 && brightness > 0.4 && brightness <= 0.7) return "Verde Esmeralda";
+            if (saturation > 0.4 && saturation <= 0.7 && brightness > 0.5) return "Verde Menta";
+            if (saturation <= 0.4 && brightness > 0.8) return "Verde Pálido";
+            return "Verde Azulado";
         }
+    }
+    
+    // Cianes (hue: 140-200)
+    if (hue >= 140 && hue < 200)
+    {
+        if (saturation > 0.7 && brightness > 0.7) return "Cian";
+        if (hue < 170)
+        {
+            if (saturation > 0.7 && brightness > 0.4 && brightness <= 0.7) return "Verde Agua";
+            if (saturation > 0.4 && saturation <= 0.7 && brightness > 0.7) return "Turquesa";
+            return "Turquesa";
+        }
+        else
+        {
+            if (saturation > 0.7 && brightness > 0.4 && brightness <= 0.7) return "Azul Verdoso";
+            if (saturation > 0.4 && saturation <= 0.7 && brightness > 0.7) return "Azul Celeste";
+            return "Azul Celeste";
+        }
+    }
+    
+    // Azules (hue: 200-260)
+    if (hue >= 200 && hue < 260)
+    {
+        if (saturation > 0.8 && brightness > 0.8) return "Azul";
+        if (saturation > 0.8 && brightness > 0.5 && brightness <= 0.8) return "Azul Medio";
+        if (saturation > 0.8 && brightness > 0.2 && brightness <= 0.5) return "Azul Oscuro";
+        if (saturation > 0.4 && saturation <= 0.8 && brightness > 0.7) return "Azul Cielo";
+        if (saturation > 0.4 && saturation <= 0.8 && brightness <= 0.7) return "Azul Marino";
+        if (saturation <= 0.4 && brightness > 0.7) return "Azul Pálido";
+        return "Azul";
+    }
+    
+    // Púrpuras (hue: 260-300)
+    if (hue >= 260 && hue < 300)
+    {
+        if (saturation > 0.7 && brightness > 0.7) return "Púrpura";
+        if (saturation > 0.7 && brightness > 0.4 && brightness <= 0.7) return "Púrpura Oscuro";
+        if (saturation > 0.4 && saturation <= 0.7 && brightness > 0.7) return "Lila";
+        if (saturation <= 0.4 && brightness > 0.6) return "Lavanda";
+        return "Violeta";
+    }
+    
+    // Magentas (hue: 300-330)
+    if (hue >= 300 && hue < 330)
+    {
+        if (saturation > 0.7 && brightness > 0.8) return "Magenta";
+        if (saturation > 0.7 && brightness > 0.6 && brightness <= 0.8) return "Fucsia";
+        if (saturation > 0.7 && brightness <= 0.6) return "Púrpura Rojizo";
+        if (saturation > 0.4 && saturation <= 0.7 && brightness > 0.7) return "Rosa";
+        if (saturation <= 0.4 && brightness > 0.8) return "Rosa Pálido";
+        return "Magenta";
+    }
+    
+    // Si llegamos aquí, usar los valores RGB para identificar colores especiales
+    
+    // Colores metálicos y especiales
+    if (color.R > 180 && color.G > 160 && color.B > 120 && color.G < color.R && color.B < color.G)
+        return "Dorado";
+    if (color.R > 160 && color.G > 160 && color.B > 160 && 
+        Math.Abs(color.R - color.G) < 10 && Math.Abs(color.G - color.B) < 10)
+        return "Plateado";
+    if (color.R > 140 && color.G > 90 && color.B > 40 && color.G < color.R && color.B < color.G)
+        return "Bronce";
+    
+    // Marrones especiales 
+    if (color.R > 140 && color.G > 80 && color.G < 120 && color.B < 80)
+        return "Marrón Rojizo";
+    if (color.R > 80 && color.R < 130 && color.G > 50 && color.G < 90 && color.B > 0 && color.B < 40)
+        return "Marrón Sepia";
+    if (color.R > 100 && color.R < 150 && color.G > 70 && color.G < 110 && color.B > 40 && color.B < 70)
+        return "Marrón Café";
+    
+    // Valor desconocido
+    return "No identificado";
+}
+
+
+
+
+
                 private void cerrarToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenCamera = false;
@@ -267,7 +300,7 @@ namespace _1erEntrega
 
         private void CameraBox_Click(object sender, EventArgs e)
         {
-            // Only process the clicks if the camara is active, si no pa que
+            // Only process the clicks if the camara is active
             if (CameraBox.Image == null)
                 return;
 
@@ -281,59 +314,142 @@ namespace _1erEntrega
             int imageX = (int)(mousePos.X * ratioX);
             int imageY = (int)(mousePos.Y * ratioY);
             
-            // asegurarnos que esta adentro
+            // Make sure the click is within image bounds
             if (imageX < 0 || imageX >= CameraBox.Image.Width || 
                 imageY < 0 || imageY >= CameraBox.Image.Height)
                 return;
             
-            // guardar las pos del click
+            // Save the clicked position
             lastClickedPoint = new Point(imageX, imageY);
             hasClickedPoint = true;
             
-            // get the color at the clicked point
+            // Get the color at the clicked point
             Bitmap bitmap = new Bitmap(CameraBox.Image);
             Color pixelColor = bitmap.GetPixel(imageX, imageY);
             
-            // Determine quadrant
-            int quadrant = GetQuadrant(imageX, imageY, bitmap.Width, bitmap.Height);
-            
-            // Get the color name
+            // Get the color name and HSV values
             string colorName = GetColorName(pixelColor);
+            
+            // Calculate HSV values
+            double r = pixelColor.R / 255.0;
+            double g = pixelColor.G / 255.0;
+            double b = pixelColor.B / 255.0;
+            
+            double max = Math.Max(r, Math.Max(g, b));
+            double min = Math.Min(r, Math.Min(g, b));
+            double delta = max - min;
+            
+            double hue = 0;
+            if (delta > 0)
+            {
+                if (max == r)
+                {
+                    hue = ((g - b) / delta) % 6;
+                }
+                else if (max == g)
+                {
+                    hue = (b - r) / delta + 2;
+                }
+                else // max == b
+                {
+                    hue = (r - g) / delta + 4;
+                }
+                
+                hue *= 60; // Convert to degrees (0-360)
+                if (hue < 0) hue += 360;
+            }
+            
+            double saturation = max == 0 ? 0 : delta / max;
+            double value = max;
+            
+            // Determine HSV quadrant
+            string hsvQuadrant = GetHSVQuadrant(hue, saturation, value);
             
             // Update the UI 
             colorDisplayPanel.BackColor = pixelColor;
             colorNameLabel.Text = $"Color: {colorName}";
             rgbValuesLabel.Text = $"RGB: R:{pixelColor.R}, G:{pixelColor.G}, B:{pixelColor.B}";
-            
-            // Update quadrant info
-            UpdateQuadrantInfo(quadrant, colorName, pixelColor);
+            hsvValuesLabel.Text = $"HSV: H:{hue:F0}°, S:{saturation:P0}, V:{value:P0} ({hsvQuadrant})";
             
             // Clean up
             bitmap.Dispose();
         }
 
-      
-        private int GetQuadrant(int x, int y, int width, int height)
+        // Add this new method to determine the HSV quadrant
+        private string GetHSVQuadrant(double hue, double saturation, double value)
         {
-            int centerX = width / 2;
-            int centerY = height / 2;
-            
-            if (x < centerX && y < centerY)
-                return 1;      // Top-left
-            else if (x >= centerX && y < centerY)
-                return 2;      // Top-right
-            else if (x < centerX && y >= centerY)
-                return 3;      // Bottom-left
+            // Determine the hue quadrant
+            string hueRange;
+            if ((hue >= 0 && hue < 20) || (hue >= 330 && hue <= 360))
+                hueRange = "Rojo";
+            else if (hue >= 20 && hue < 40)
+                hueRange = "Naranja";
+            else if (hue >= 40 && hue < 60)
+                hueRange = "Amarillo";
+            else if (hue >= 60 && hue < 140)
+            {
+                if (hue < 80)
+                    hueRange = "Verde-Amarillo";
+                else if (hue < 100)
+                    hueRange = "Verde";
+                else
+                    hueRange = "Verde-Cian";
+            }
+            else if (hue >= 140 && hue < 200)
+            {
+                if (hue < 170)
+                    hueRange = "Cian-Verde";
+                else
+                    hueRange = "Cian-Azul";
+            }
+            else if (hue >= 200 && hue < 260)
+                hueRange = "Azul";
+            else if (hue >= 260 && hue < 300)
+                hueRange = "Púrpura";
+            else // hue >= 300 && hue < 330
+                hueRange = "Magenta";
+
+            // Determine the saturation and value description
+            string intensityDesc;
+            if (saturation < 0.1)
+            {
+                if (value > 0.9)
+                    return "Blanco";
+                else if (value > 0.6)
+                    return "Gris Claro";
+                else if (value > 0.4)
+                    return "Gris";
+                else if (value > 0.15)
+                    return "Gris Oscuro";
+                else
+                    return "Negro";
+            }
             else
-                return 4;      // Bottom-right
+            {
+                if (saturation > 0.7)
+                {
+                    if (value > 0.7)
+                        intensityDesc = "Brillante";
+                    else if (value > 0.4)
+                        intensityDesc = "Profundo";
+                    else
+                        intensityDesc = "Oscuro";
+                }
+                else
+                {
+                    if (value > 0.7)
+                        intensityDesc = "Pálido";
+                    else if (value > 0.4)
+                        intensityDesc = "Moderado";
+                    else
+                        intensityDesc = "Sombrío";
+                }
+            }
+            
+            return $"{hueRange} {intensityDesc}";
         }
 
-       
-        private void UpdateQuadrantInfo(int quadrant, string colorName, Color pixelColor)
-        {
-            quadrantInfoLabel.Text = $"Cuadrante: {quadrant}";
-        }
-
+      
         //private void DrawClickedPointMarker(Image<Bgr, byte> frame)
         //{
         //    if (!hasClickedPoint)
@@ -355,67 +471,6 @@ namespace _1erEntrega
         //                   size + 2,
         //                   new MCvScalar(0, 255, 255), 2);
         //}
-
-        private void DrawQuadrants(Image<Bgr, byte> frame)
-        {
-            // Get the center point 
-            int centerX = frame.Width / 2;
-            int centerY = frame.Height / 2;
-            
-
-            
-            // Draw horizontal line
-            CvInvoke.Line(frame, 
-                          new Point(0, centerY), 
-                          new Point(frame.Width, centerY), 
-                          new MCvScalar(255, 255, 255), 
-                          3);
-            
-            // Draw vertical line
-            CvInvoke.Line(frame, 
-                          new Point(centerX, 0), 
-                          new Point(centerX, frame.Height), 
-                          new MCvScalar(255, 255, 255), 
-                          3);
-            
-            int boxSize = 40;
-            
-            // Quadrant 1
-            CvInvoke.Rectangle(frame,
-                              new Rectangle(centerX - 70, centerY - 45, boxSize, boxSize),
-                              new MCvScalar(0, 0, 0, 128),
-                              -1);
-            CvInvoke.PutText(frame, "1", new Point(centerX - 60, centerY - 15), 
-                             Emgu.CV.CvEnum.FontFace.HersheyDuplex, 1.0, 
-                             new MCvScalar(255, 255, 255));
-            
-            // Quadrant 2
-            CvInvoke.Rectangle(frame,
-                              new Rectangle(centerX + 30, centerY - 45, boxSize, boxSize),
-                              new MCvScalar(0, 0, 0, 128),
-                              -1);
-            CvInvoke.PutText(frame, "2", new Point(centerX + 40, centerY - 15), 
-                             Emgu.CV.CvEnum.FontFace.HersheyDuplex, 1.0, 
-                             new MCvScalar(255, 255, 255));
-            
-            // Quadrant 3
-            CvInvoke.Rectangle(frame,
-                              new Rectangle(centerX - 70, centerY + 5, boxSize, boxSize),
-                              new MCvScalar(0, 0, 0, 128),
-                              -1);
-            CvInvoke.PutText(frame, "3", new Point(centerX - 60, centerY + 35), 
-                             Emgu.CV.CvEnum.FontFace.HersheyDuplex, 1.0, 
-                             new MCvScalar(255, 255, 255));
-            
-            // Quadrant 4
-            CvInvoke.Rectangle(frame,
-                              new Rectangle(centerX + 30, centerY + 5, boxSize, boxSize),
-                              new MCvScalar(0, 0, 0, 128),
-                              -1);
-            CvInvoke.PutText(frame, "4", new Point(centerX + 40, centerY + 35), 
-                             Emgu.CV.CvEnum.FontFace.HersheyDuplex, 1.0, 
-                             new MCvScalar(255, 255, 255));
-        }
 
         private void panel2_Paint(object sender, PaintEventArgs e)
         {
