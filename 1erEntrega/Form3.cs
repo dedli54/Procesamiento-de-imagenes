@@ -21,6 +21,7 @@ namespace _1erEntrega
         private int[] histogramaR = new int[256];
         private int[] histogramaG = new int[256];
         private int[] histogramaB = new int[256];
+        private int[] histogramaCombinado = new int[256]; // New array for combined histogram
         public Form3()
         {
             InitializeComponent();
@@ -32,6 +33,7 @@ namespace _1erEntrega
             InitializeHistogram(pictureBoxHistogramR, Color.Red);
             InitializeHistogram(pictureBoxHistogramG, Color.Green);
             InitializeHistogram(pictureBoxHistogramB, Color.Blue);
+            InitializeHistogram(pictureBoxHistogramCombined, Color.White); // Initialize combined histogram
         }
 
         private void InitializeHistogram(PictureBox histogramBox, Color axisColor)
@@ -267,7 +269,6 @@ namespace _1erEntrega
             CurrentFrameNo = 0;
             trackBar1.Value = 0;
             
-            
             if (pictureBoxHistogramR.Image != null)
             {
                 pictureBoxHistogramR.Image.Dispose();
@@ -284,6 +285,12 @@ namespace _1erEntrega
             {
                 pictureBoxHistogramB.Image.Dispose();
                 pictureBoxHistogramB.Image = null;
+            }
+            
+            if (pictureBoxHistogramCombined.Image != null)
+            {
+                pictureBoxHistogramCombined.Image.Dispose();
+                pictureBoxHistogramCombined.Image = null;
             }
             
             if (pictureBox1.Image != null)
@@ -774,6 +781,7 @@ namespace _1erEntrega
             Array.Clear(histogramaR, 0, histogramaR.Length);
             Array.Clear(histogramaG, 0, histogramaG.Length);
             Array.Clear(histogramaB, 0, histogramaB.Length);
+            Array.Clear(histogramaCombinado, 0, histogramaCombinado.Length);
             
             // Calculate histogram
             Color colorOriginal;
@@ -785,11 +793,15 @@ namespace _1erEntrega
                     histogramaR[colorOriginal.R]++;
                     histogramaG[colorOriginal.G]++;
                     histogramaB[colorOriginal.B]++;
+                    
+                    // Calculate the average of the RGB values for combined histogram
+                    int average = (colorOriginal.R + colorOriginal.G + colorOriginal.B) / 3;
+                    histogramaCombinado[average]++;
                 }
             }
 
             // Find maximum values for each channel
-            int mayorR = 0, mayorG = 0, mayorB = 0;
+            int mayorR = 0, mayorG = 0, mayorB = 0, mayorCombinado = 0;
             for (int n = 0; n < 256; n++)
             {
                 if (histogramaR[n] > mayorR)
@@ -800,16 +812,18 @@ namespace _1erEntrega
                 
                 if (histogramaB[n] > mayorB)
                     mayorB = histogramaB[n];
+                    
+                if (histogramaCombinado[n] > mayorCombinado)
+                    mayorCombinado = histogramaCombinado[n];
             }
 
-            // Create and display Red histogram
+            // Create and display individual channel histograms
             DisplayChannelHistogram(histogramaR, mayorR, pictureBoxHistogramR, Color.Red);
-            
-            // Green
             DisplayChannelHistogram(histogramaG, mayorG, pictureBoxHistogramG, Color.Green);
-
-            //Bluey
             DisplayChannelHistogram(histogramaB, mayorB, pictureBoxHistogramB, Color.Blue);
+            
+            // Display the combined histogram with a special method that shows all 3 colors
+            DisplayCombinedHistogram(histogramaR, histogramaG, histogramaB, mayorR, mayorG, mayorB, pictureBoxHistogramCombined);
         }
 
         private void DisplayChannelHistogram(int[] histogram, int maxValue, PictureBox histogramBox, Color color)
@@ -839,6 +853,57 @@ namespace _1erEntrega
             {
                 g.DrawLine(pluma, n + 20, 90, n + 20, 90 - scaledHist[n]);
             }
+            
+            // Set the image to the picturebox
+            histogramBox.Image = histogramBitmap;
+            g.Dispose();
+        }
+
+        private void DisplayCombinedHistogram(int[] histogramR, int[] histogramG, int[] histogramB, 
+                                     int maxValueR, int maxValueG, int maxValueB, 
+                                     PictureBox histogramBox)
+        {
+            // Scale the histogram values
+            int[] scaledHistR = new int[256];
+            int[] scaledHistG = new int[256];
+            int[] scaledHistB = new int[256];
+            
+            // Find the overall maximum value across all channels
+            int maxOverall = Math.Max(maxValueR, Math.Max(maxValueG, maxValueB));
+            
+            for (int n = 0; n < 256; n++)
+            {
+                // Scale all channels against the overall maximum for consistent view
+                scaledHistR[n] = maxOverall > 0 ? (int)((float)histogramR[n] / (float)maxOverall * 80.0f) : 0;
+                scaledHistG[n] = maxOverall > 0 ? (int)((float)histogramG[n] / (float)maxOverall * 80.0f) : 0;
+                scaledHistB[n] = maxOverall > 0 ? (int)((float)histogramB[n] / (float)maxOverall * 80.0f) : 0;
+            }
+
+            // Create histogram bitmap
+            Bitmap histogramBitmap = new Bitmap(360, 110);
+            Graphics g = Graphics.FromImage(histogramBitmap);
+            g.Clear(this.BackColor);
+            
+            // Create pens
+            Pen plumaR = new Pen(Color.Red, 1);
+            Pen plumaG = new Pen(Color.Green, 1);
+            Pen plumaB = new Pen(Color.Blue, 1);
+            Pen plumaEjes = new Pen(Color.White);
+            
+            // Draw axes
+            g.DrawLine(plumaEjes, 19, 91, 277, 91); // X axis
+            g.DrawLine(plumaEjes, 19, 90, 19, 10);  // Y axis
+            
+            // Draw all three histograms with some transparency to see overlapping
+            for (int n = 0; n < 256; n++)
+            {
+                // Draw histograms from shortest to tallest for better visibility
+                // You could change this order based on your preference
+                g.DrawLine(plumaR, n + 20, 90, n + 20, 90 - scaledHistR[n]);
+                g.DrawLine(plumaG, n + 20, 90, n + 20, 90 - scaledHistG[n]);
+                g.DrawLine(plumaB, n + 20, 90, n + 20, 90 - scaledHistB[n]);
+            }
+            
             
             // Set the image to the picturebox
             histogramBox.Image = histogramBitmap;

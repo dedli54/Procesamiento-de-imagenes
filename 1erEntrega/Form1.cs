@@ -22,6 +22,7 @@ namespace _1erEntrega
         private int[] histogramaR = new int[256];
         private int[] histogramaG = new int[256];
         private int[] histogramaB = new int[256];
+        // No need to add a histogramaCombinado array since we're just displaying the three channels together
         private int porcentaje;
         int contraste;
         public Form1()
@@ -737,7 +738,7 @@ namespace _1erEntrega
                 pictureBoxHistogramR.Image = histogramBitmapR;
                 gR.Dispose();
 
-                // Same Greeen
+                // Same Green
                 Bitmap histogramBitmapG = new Bitmap(301, 100);
                 Graphics gG = Graphics.FromImage(histogramBitmapG);
                 gG.Clear(this.BackColor);
@@ -755,7 +756,7 @@ namespace _1erEntrega
                 pictureBoxHistogramG.Image = histogramBitmapG;
                 gG.Dispose();
 
-                // Same bue bluey
+                // Same blue 
                 Bitmap histogramBitmapB = new Bitmap(301, 100);
                 Graphics gB = Graphics.FromImage(histogramBitmapB);
                 gB.Clear(this.BackColor);
@@ -772,7 +773,60 @@ namespace _1erEntrega
                 
                 pictureBoxHistogramB.Image = histogramBitmapB;
                 gB.Dispose();
+                
+                // New combined histogram
+                DisplayCombinedHistogram(histogramaR, histogramaG, histogramaB, mayorR, mayorG, mayorB);
             }
+        }
+
+        // Add this new method to create the combined histogram
+        private void DisplayCombinedHistogram(int[] histogramR, int[] histogramG, int[] histogramB, 
+                                            int maxValueR, int maxValueG, int maxValueB)
+        {
+            // Find the overall maximum value across all channels
+            int maxOverall = Math.Max(maxValueR, Math.Max(maxValueG, maxValueB));
+            
+            // Scale the histogram values
+            int[] scaledHistR = new int[256];
+            int[] scaledHistG = new int[256];
+            int[] scaledHistB = new int[256];
+            
+            for (int n = 0; n < 256; n++)
+            {
+                // Scale all channels against the overall maximum for consistent view
+                scaledHistR[n] = maxOverall > 0 ? (int)((float)histogramR[n] / (float)maxOverall * 80.0f) : 0;
+                scaledHistG[n] = maxOverall > 0 ? (int)((float)histogramG[n] / (float)maxOverall * 80.0f) : 0;
+                scaledHistB[n] = maxOverall > 0 ? (int)((float)histogramB[n] / (float)maxOverall * 80.0f) : 0;
+            }
+
+            // Create histogram bitmap
+            Bitmap histogramBitmap = new Bitmap(301, 100);
+            Graphics g = Graphics.FromImage(histogramBitmap);
+            g.Clear(this.BackColor);
+            
+            // Create pens
+            Pen plumaR = new Pen(Color.Red, 1);
+            Pen plumaG = new Pen(Color.Green, 1);
+            Pen plumaB = new Pen(Color.Blue, 1);
+            Pen plumaEjes = new Pen(Color.White);
+            
+            // Draw axes
+            g.DrawLine(plumaEjes, 19, 81, 277, 81); // X axis
+            g.DrawLine(plumaEjes, 19, 80, 19, 10);  // Y axis
+            
+            
+            // Draw all three histograms with some transparency
+            for (int n = 0; n < 256; n++)
+            {
+                // Draw histograms from shortest to tallest for better visibility
+                g.DrawLine(plumaR, n + 20, 80, n + 20, 80 - scaledHistR[n]);
+                g.DrawLine(plumaG, n + 20, 80, n + 20, 80 - scaledHistG[n]);
+                g.DrawLine(plumaB, n + 20, 80, n + 20, 80 - scaledHistB[n]);
+            }
+            
+            // Set the image to the picturebox
+            pictureBoxHistogramCombined.Image = histogramBitmap;
+            g.Dispose();
         }
 
         public static class ImageConverter
@@ -842,6 +896,11 @@ namespace _1erEntrega
                 pictureBoxHistogramB.Image = null;
             }
             
+            if (pictureBoxHistogramCombined.Image != null)
+            {
+                pictureBoxHistogramCombined.Image.Dispose();
+                pictureBoxHistogramCombined.Image = null;
+            }
             
             Application.Exit();
         }

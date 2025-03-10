@@ -51,12 +51,14 @@
             this.pictureBoxHistogramR = new System.Windows.Forms.PictureBox();
             this.pictureBoxHistogramG = new System.Windows.Forms.PictureBox();
             this.pictureBoxHistogramB = new System.Windows.Forms.PictureBox();
+            this.pictureBoxHistogramCombined = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramR)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramG)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramB)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramCombined)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -251,12 +253,23 @@
             this.pictureBoxHistogramB.TabIndex = 8;
             this.pictureBoxHistogramB.TabStop = false;
             // 
+            // pictureBoxHistogramCombined
+            // 
+            this.pictureBoxHistogramCombined.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.pictureBoxHistogramCombined.Location = new System.Drawing.Point(594, 366);
+            this.pictureBoxHistogramCombined.Margin = new System.Windows.Forms.Padding(2);
+            this.pictureBoxHistogramCombined.Name = "pictureBoxHistogramCombined";
+            this.pictureBoxHistogramCombined.Size = new System.Drawing.Size(360, 110);
+            this.pictureBoxHistogramCombined.TabIndex = 9;
+            this.pictureBoxHistogramCombined.TabStop = false;
+            // 
             // Form3
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.ClientSize = new System.Drawing.Size(956, 374);
+            this.ClientSize = new System.Drawing.Size(956, 486);
+            this.Controls.Add(this.pictureBoxHistogramCombined);
             this.Controls.Add(this.pictureBoxHistogramR);
             this.Controls.Add(this.pictureBoxHistogramG);
             this.Controls.Add(this.pictureBoxHistogramB);
@@ -276,6 +289,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramR)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramG)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramB)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramCombined)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -306,5 +320,6 @@
         private System.Windows.Forms.PictureBox pictureBoxHistogramR;
         private System.Windows.Forms.PictureBox pictureBoxHistogramG;
         private System.Windows.Forms.PictureBox pictureBoxHistogramB;
+        private System.Windows.Forms.PictureBox pictureBoxHistogramCombined;
     }
 }
