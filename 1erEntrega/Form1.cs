@@ -693,7 +693,7 @@ namespace _1erEntrega
                     }
                 }
 
-                // Find maximum values for each channel
+                // Find max for the values of rgb
                 int mayorR = 0, mayorG = 0, mayorB = 0;
                 for (int n = 0; n < 256; n++)
                 {
@@ -737,7 +737,7 @@ namespace _1erEntrega
                 pictureBoxHistogramR.Image = histogramBitmapR;
                 gR.Dispose();
 
-                // Create and display Green histogram
+                // Same Greeen
                 Bitmap histogramBitmapG = new Bitmap(301, 100);
                 Graphics gG = Graphics.FromImage(histogramBitmapG);
                 gG.Clear(this.BackColor);
@@ -755,7 +755,7 @@ namespace _1erEntrega
                 pictureBoxHistogramG.Image = histogramBitmapG;
                 gG.Dispose();
 
-                // Create and display Blue histogram
+                // Same bue bluey
                 Bitmap histogramBitmapB = new Bitmap(301, 100);
                 Graphics gB = Graphics.FromImage(histogramBitmapB);
                 gB.Clear(this.BackColor);
@@ -842,7 +842,7 @@ namespace _1erEntrega
                 pictureBoxHistogramB.Image = null;
             }
             
-            // Clean up any other resources
+            
             Application.Exit();
         }
     }

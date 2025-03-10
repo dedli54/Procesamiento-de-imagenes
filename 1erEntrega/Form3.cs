@@ -28,7 +28,7 @@ namespace _1erEntrega
 
         private void Form3_Load(object sender, EventArgs e)
         {
-            // Initialize each histogram picturebox with a blank histogram
+            // Inicia cada histograma para cada color
             InitializeHistogram(pictureBoxHistogramR, Color.Red);
             InitializeHistogram(pictureBoxHistogramG, Color.Green);
             InitializeHistogram(pictureBoxHistogramB, Color.Blue);
@@ -58,19 +58,19 @@ namespace _1erEntrega
         {
             if (capture != null)
             {
-                // Stop playback
+                // stop
                 IsPlaying = false;
                 button2.BackgroundImage = global::_1erEntrega.Properties.Resources.play;
                 
-                // Rewind to beginning
+                // Regresa al incio
                 CurrentFrameNo = 0;
                 trackBar1.Value = 0;
                 
-                // Show first frame
+                // Muestra el primer frame
                 capture.Set(Emgu.CV.CvEnum.CapProp.PosFrames, 0);
                 capture.Read(CurrentFrame);
                 
-                // Apply the current filter to the first frame
+                // Aplicado de filtros
                 switch (filter)
                 {
                     case 1:
@@ -267,7 +267,7 @@ namespace _1erEntrega
             CurrentFrameNo = 0;
             trackBar1.Value = 0;
             
-            // Clean up histogram images
+            
             if (pictureBoxHistogramR.Image != null)
             {
                 pictureBoxHistogramR.Image.Dispose();
@@ -421,7 +421,7 @@ namespace _1erEntrega
                 {
                     //Get pixel color
                     colorOriginal = current.GetPixel(x, y);
-                    //process and get the new colorxdd le salia el ingles de repente
+                    //process and get the new color
                     r = ((((colorOriginal.R / 255.0f) - 0.5f) * c) + 0.5f) * 255;
                     if (r > 255) r = 255;
                     if (r < 0) r = 0;
@@ -805,16 +805,16 @@ namespace _1erEntrega
             // Create and display Red histogram
             DisplayChannelHistogram(histogramaR, mayorR, pictureBoxHistogramR, Color.Red);
             
-            // Create and display Green histogram
+            // Green
             DisplayChannelHistogram(histogramaG, mayorG, pictureBoxHistogramG, Color.Green);
-            
-            // Create and display Blue histogram
+
+            //Bluey
             DisplayChannelHistogram(histogramaB, mayorB, pictureBoxHistogramB, Color.Blue);
         }
 
         private void DisplayChannelHistogram(int[] histogram, int maxValue, PictureBox histogramBox, Color color)
         {
-            // Scale the histogram values
+            // Escalar los values del histograma
             int[] scaledHist = new int[256];
             for (int n = 0; n < 256; n++)
             {
