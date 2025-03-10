@@ -14,10 +14,26 @@ namespace _1erEntrega
         FilterInfoCollection filterInfoCollection;
         private VideoCapture camera;
         private bool OpenCamera = true;
+        private Label quadrantInfoLabel;
+        private Label clickedPixelHeaderLabel;
+
+        // Track el ultimo punto clickeado
+        private Point lastClickedPoint = new Point(-1, -1);
+        private bool hasClickedPoint = false;
+
+        
         
         public Form2()
         {
             InitializeComponent();
+            
+            // Crear la info del cuadrante cuando se inicialican las cosas
+            quadrantInfoLabel = new Label();
+            quadrantInfoLabel.AutoSize = true;
+            quadrantInfoLabel.Location = new System.Drawing.Point(15 , 205);
+            quadrantInfoLabel.Text = "Cuadrante: ";
+            panel2.Controls.Add(quadrantInfoLabel);
+            
         }
 
         private void Form2_Load(object sender, EventArgs e)
@@ -28,6 +44,7 @@ namespace _1erEntrega
             comboBoxCamera.SelectedIndex = 0;
         }
 
+        
         private void button2_Click_1(object sender, EventArgs e)
         {
             camera = new VideoCapture(comboBoxCamera.SelectedIndex);
@@ -48,6 +65,15 @@ namespace _1erEntrega
                     // Agarra color dominante 
                     KeyValuePair<Color, int> dominantColor = GetDominantColor(frame);
                     
+                    // Draw quadrants on the frame
+                    DrawQuadrants(frame);
+                    
+                    // Draw the clicked point marker if there is one
+                    if (hasClickedPoint)
+                    {
+                        DrawClickedPointMarker(frame);
+                    }
+                    
                     // dibujar cajita de color
                     DrawColorBox(frame, dominantColor.Key);
                     
@@ -58,15 +84,20 @@ namespace _1erEntrega
                                      Emgu.CV.CvEnum.FontFace.HersheyDuplex, 0.6, 
                                      new MCvScalar(255, 255, 255));
 
-                    // Actualizar la imagen en CameraBox desde el hilo principal
+                    // Actualizar la imagen en CameraBox
                     CameraBox.Invoke((MethodInvoker)delegate
                     {
                         CameraBox.Image = frame.ToBitmap();
                         
-                        // Update external color display
-                        colorDisplayPanel.BackColor = dominantColor.Key;
-                        colorNameLabel.Text = $"Color: {colorName}";
-                        rgbValuesLabel.Text = $"RGB: R:{dominantColor.Key.R}, G:{dominantColor.Key.G}, B:{dominantColor.Key.B}";
+                        // Only update the overall color display if no pixel has been clicked
+                        if (!hasClickedPoint)
+                        {
+                            // Update external color display for dominant color
+                            colorDisplayPanel.BackColor = dominantColor.Key;
+                            colorNameLabel.Text = $"Color: {colorName}";
+                            rgbValuesLabel.Text = $"RGB: R:{dominantColor.Key.R}, G:{dominantColor.Key.G}, B:{dominantColor.Key.B}";
+                            quadrantInfoLabel.Text = "Cuadrante: "; 
+                        }
                     });
 
                     // Salir si se presiona una tecla o si se cierra el formulario
@@ -236,6 +267,160 @@ namespace _1erEntrega
 
         private void CameraBox_Click(object sender, EventArgs e)
         {
+            // Only process the clicks if the camara is active, si no pa que
+            if (CameraBox.Image == null)
+                return;
+
+            // Get the mouse position
+            Point mousePos = CameraBox.PointToClient(Cursor.Position);
+            
+            // Convert the clicked coordinates to actual image coordinates
+            double ratioX = (double)CameraBox.Image.Width / CameraBox.Width;
+            double ratioY = (double)CameraBox.Image.Height / CameraBox.Height;
+            
+            int imageX = (int)(mousePos.X * ratioX);
+            int imageY = (int)(mousePos.Y * ratioY);
+            
+            // asegurarnos que esta adentro
+            if (imageX < 0 || imageX >= CameraBox.Image.Width || 
+                imageY < 0 || imageY >= CameraBox.Image.Height)
+                return;
+            
+            // guardar las pos del click
+            lastClickedPoint = new Point(imageX, imageY);
+            hasClickedPoint = true;
+            
+            // get the color at the clicked point
+            Bitmap bitmap = new Bitmap(CameraBox.Image);
+            Color pixelColor = bitmap.GetPixel(imageX, imageY);
+            
+            // Determine quadrant
+            int quadrant = GetQuadrant(imageX, imageY, bitmap.Width, bitmap.Height);
+            
+            // Get the color name
+            string colorName = GetColorName(pixelColor);
+            
+            // Update the UI 
+            colorDisplayPanel.BackColor = pixelColor;
+            colorNameLabel.Text = $"Color: {colorName}";
+            rgbValuesLabel.Text = $"RGB: R:{pixelColor.R}, G:{pixelColor.G}, B:{pixelColor.B}";
+            
+            // Update quadrant info
+            UpdateQuadrantInfo(quadrant, colorName, pixelColor);
+            
+            // Clean up
+            bitmap.Dispose();
+        }
+
+      
+        private int GetQuadrant(int x, int y, int width, int height)
+        {
+            int centerX = width / 2;
+            int centerY = height / 2;
+            
+            if (x < centerX && y < centerY)
+                return 1;      // Top-left
+            else if (x >= centerX && y < centerY)
+                return 2;      // Top-right
+            else if (x < centerX && y >= centerY)
+                return 3;      // Bottom-left
+            else
+                return 4;      // Bottom-right
+        }
+
+       
+        private void UpdateQuadrantInfo(int quadrant, string colorName, Color pixelColor)
+        {
+            quadrantInfoLabel.Text = $"Cuadrante: {quadrant}";
+        }
+
+        private void DrawClickedPointMarker(Image<Bgr, byte> frame)
+        {
+            if (!hasClickedPoint)
+                return;
+                
+            int size = 10;
+            CvInvoke.Line(frame,
+                          new Point(lastClickedPoint.X - size, lastClickedPoint.Y),
+                          new Point(lastClickedPoint.X + size, lastClickedPoint.Y),
+                          new MCvScalar(0, 255, 255), 2); 
+                          
+            CvInvoke.Line(frame,
+                          new Point(lastClickedPoint.X, lastClickedPoint.Y - size),
+                          new Point(lastClickedPoint.X, lastClickedPoint.Y + size),
+                          new MCvScalar(0, 255, 255), 2);
+                          
+            CvInvoke.Circle(frame,
+                           lastClickedPoint,
+                           size + 2,
+                           new MCvScalar(0, 255, 255), 2);
+        }
+
+        private void DrawQuadrants(Image<Bgr, byte> frame)
+        {
+            // Get the center point 
+            int centerX = frame.Width / 2;
+            int centerY = frame.Height / 2;
+            
+
+            
+            // Draw horizontal line
+            CvInvoke.Line(frame, 
+                          new Point(0, centerY), 
+                          new Point(frame.Width, centerY), 
+                          new MCvScalar(255, 255, 255), 
+                          3);
+            
+            // Draw vertical line
+            CvInvoke.Line(frame, 
+                          new Point(centerX, 0), 
+                          new Point(centerX, frame.Height), 
+                          new MCvScalar(255, 255, 255), 
+                          3);
+            
+            int boxSize = 40;
+            
+            // Quadrant 1
+            CvInvoke.Rectangle(frame,
+                              new Rectangle(centerX - 70, centerY - 45, boxSize, boxSize),
+                              new MCvScalar(0, 0, 0, 128),
+                              -1);
+            CvInvoke.PutText(frame, "1", new Point(centerX - 60, centerY - 15), 
+                             Emgu.CV.CvEnum.FontFace.HersheyDuplex, 1.0, 
+                             new MCvScalar(255, 255, 255));
+            
+            // Quadrant 2
+            CvInvoke.Rectangle(frame,
+                              new Rectangle(centerX + 30, centerY - 45, boxSize, boxSize),
+                              new MCvScalar(0, 0, 0, 128),
+                              -1);
+            CvInvoke.PutText(frame, "2", new Point(centerX + 40, centerY - 15), 
+                             Emgu.CV.CvEnum.FontFace.HersheyDuplex, 1.0, 
+                             new MCvScalar(255, 255, 255));
+            
+            // Quadrant 3
+            CvInvoke.Rectangle(frame,
+                              new Rectangle(centerX - 70, centerY + 5, boxSize, boxSize),
+                              new MCvScalar(0, 0, 0, 128),
+                              -1);
+            CvInvoke.PutText(frame, "3", new Point(centerX - 60, centerY + 35), 
+                             Emgu.CV.CvEnum.FontFace.HersheyDuplex, 1.0, 
+                             new MCvScalar(255, 255, 255));
+            
+            // Quadrant 4
+            CvInvoke.Rectangle(frame,
+                              new Rectangle(centerX + 30, centerY + 5, boxSize, boxSize),
+                              new MCvScalar(0, 0, 0, 128),
+                              -1);
+            CvInvoke.PutText(frame, "4", new Point(centerX + 40, centerY + 35), 
+                             Emgu.CV.CvEnum.FontFace.HersheyDuplex, 1.0, 
+                             new MCvScalar(255, 255, 255));
+        }
+
+        private void panel2_Paint(object sender, PaintEventArgs e)
+        {
+
         }
     }
+    
 }
