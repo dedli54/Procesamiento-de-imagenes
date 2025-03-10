@@ -51,7 +51,7 @@ namespace _1erEntrega
                     // dibujar cajita de color
                     DrawColorBox(frame, dominantColor.Key);
                     
-                    // Display del mombre y valores rgb
+                    // Display del nombre y valores rgb
                     string colorName = GetColorName(dominantColor.Key);
                     string colorInfo = $"{colorName} - R:{dominantColor.Key.R}, G:{dominantColor.Key.G}, B:{dominantColor.Key.B}";
                     CvInvoke.PutText(frame, colorInfo, new Point(10, 30), 
@@ -62,6 +62,11 @@ namespace _1erEntrega
                     CameraBox.Invoke((MethodInvoker)delegate
                     {
                         CameraBox.Image = frame.ToBitmap();
+                        
+                        // Update external color display
+                        colorDisplayPanel.BackColor = dominantColor.Key;
+                        colorNameLabel.Text = $"Color: {colorName}";
+                        rgbValuesLabel.Text = $"RGB: R:{dominantColor.Key.R}, G:{dominantColor.Key.G}, B:{dominantColor.Key.B}";
                     });
 
                     // Salir si se presiona una tecla o si se cierra el formulario
@@ -78,7 +83,7 @@ namespace _1erEntrega
             // Low ress para performance
             int sampleWidth = 50;
             int sampleHeight = 50;
-            
+
             Image<Bgr, byte> resizedImage = image.Resize(sampleWidth, sampleHeight, Emgu.CV.CvEnum.Inter.Linear);
             
             // Dictionary for the colors
@@ -145,19 +150,60 @@ namespace _1erEntrega
         
         private string GetColorName(Color color)
         {
-            // No me se mas colores, pero este es el dicionario
-            if (color.R > 200 && color.G < 100 && color.B < 100) return "Rojo";
-            if (color.R > 200 && color.G > 200 && color.B < 100) return "Amarillo";
-            if (color.R < 100 && color.G > 200 && color.B < 100) return "Verde";
-            if (color.R < 100 && color.G < 100 && color.B > 200) return "Azul";
-            if (color.R > 200 && color.G < 100 && color.B > 200) return "Magenta";
-            if (color.R < 100 && color.G > 200 && color.B > 200) return "Azul Clarito";
-            if (color.R > 200 && color.G > 150 && color.B > 50 && color.G < 200) return "Naranaja";
-            if (color.R > 200 && color.G > 100 && color.B > 100) return "Rosa";
-            if (color.R < 100 && color.G < 100 && color.B < 100) return "Negro";
-            if (color.R > 200 && color.G > 200 && color.B > 200) return "Blanco";
-       
+            // Colores básicos
+            if (color.R > 220 && color.G < 60 && color.B < 60) return "Rojo";
+            if (color.R > 220 && color.G > 220 && color.B < 60) return "Amarillo";
+            if (color.R < 60 && color.G > 220 && color.B < 60) return "Verde";
+            if (color.R < 60 && color.G < 60 && color.B > 220) return "Azul";
+            if (color.R > 220 && color.G < 60 && color.B > 220) return "Magenta";
+            if (color.R < 60 && color.G > 180 && color.B > 180) return "Cian";
             
+            // Tonos naranjas y marrones
+            if (color.R > 220 && color.G > 130 && color.G < 180 && color.B < 60) return "Naranja";
+            if (color.R > 180 && color.G > 90 && color.G < 150 && color.B < 90) return "Marrón";
+            if (color.R > 200 && color.G > 160 && color.G < 200 && color.B < 120) return "Ámbar";
+            if (color.R > 160 && color.G > 80 && color.G < 120 && color.B < 80) return "Marrón Rojizo";
+            
+            // Tonos verdes
+            if (color.R < 120 && color.G > 180 && color.B < 120) return "Verde Limón";
+            if (color.R > 60 && color.R < 150 && color.G > 180 && color.B < 120) return "Verde Oliva";
+            if (color.R < 80 && color.G > 120 && color.G < 180 && color.B < 120) return "Verde Bosque";
+            
+            // Tonos azules
+            if (color.R < 100 && color.G < 100 && color.B > 180) return "Azul Marino";
+            if (color.R < 130 && color.G > 130 && color.B > 220) return "Azul Celeste";
+            if (color.R > 130 && color.G > 180 && color.B > 220) return "Azul Claro";
+            if (color.R < 60 && color.G < 150 && color.B > 180) return "Azul Turquesa";
+            
+            // Tonos rojos y rosas
+            if (color.R > 220 && color.G > 100 && color.G < 180 && color.B > 120 && color.B < 180) return "Rosa";
+            if (color.R > 220 && color.G > 150 && color.B > 180) return "Rosa Claro";
+            
+            // Tonos púrpura
+            if (color.R > 150 && color.R < 200 && color.G < 100 && color.B > 180) return "Púrpura";
+            if (color.R > 120 && color.R < 180 && color.G < 80 && color.B > 130) return "Violeta";
+            if (color.R > 180 && color.G < 150 && color.B > 180) return "Lila";
+            
+            // Grises y neutros
+            if (color.R < 60 && color.G < 60 && color.B < 60) return "Negro";
+            if (color.R > 220 && color.G > 220 && color.B > 220) return "Blanco";
+            if (Math.Abs(color.R - color.G) < 20 && Math.Abs(color.G - color.B) < 20 && Math.Abs(color.R - color.B) < 20)
+            {
+                if (color.R > 180) return "Gris Claro";
+                else if (color.R > 100) return "Gris";
+                else if (color.R > 50) return "Gris Oscuro";
+            }
+            
+            // Colores adicionales
+            if (color.R > 150 && color.G < 150 && color.B > 150) return "Morado";
+            if (color.R > 180 && color.G > 80 && color.G < 130 && color.B > 180) return "Lavanda";
+            if (color.R > 180 && color.G > 220 && color.B > 180 && color.B < 220) return "Menta";
+            if (color.R > 220 && color.G > 180 && color.G < 220 && color.B < 150) return "Durazno";
+            if (color.R > 160 && color.G > 40 && color.G < 100 && color.B < 80) return "Terracota";
+            if (color.R > 220 && color.G > 170 && color.B < 120) return "Beige";
+            if (color.R > 200 && color.G > 200 && color.B > 120 && color.B < 180) return "Crema";
+            
+            // Color desconocido
             return "No se";
         }
                 private void cerrarToolStripMenuItem_Click(object sender, EventArgs e)

@@ -1,5 +1,4 @@
-﻿
-namespace _1erEntrega
+﻿namespace _1erEntrega
 {
     partial class Form2
     {
@@ -37,6 +36,9 @@ namespace _1erEntrega
             this.button2 = new System.Windows.Forms.Button();
             this.comboBoxCamera = new System.Windows.Forms.ComboBox();
             this.ColorIdentity = new System.Windows.Forms.Label();
+            this.colorDisplayPanel = new System.Windows.Forms.Panel();
+            this.colorNameLabel = new System.Windows.Forms.Label();
+            this.rgbValuesLabel = new System.Windows.Forms.Label();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.CameraBox)).BeginInit();
@@ -87,6 +89,9 @@ namespace _1erEntrega
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.colorDisplayPanel);
+            this.panel2.Controls.Add(this.colorNameLabel);
+            this.panel2.Controls.Add(this.rgbValuesLabel);
             this.panel2.Controls.Add(this.button2);
             this.panel2.Controls.Add(this.comboBoxCamera);
             this.panel2.Controls.Add(this.ColorIdentity);
@@ -125,6 +130,29 @@ namespace _1erEntrega
             this.ColorIdentity.Size = new System.Drawing.Size(0, 13);
             this.ColorIdentity.TabIndex = 1;
             // 
+            // colorDisplayPanel
+            // 
+            this.colorDisplayPanel.Location = new System.Drawing.Point(15, 150);
+            this.colorDisplayPanel.Name = "colorDisplayPanel";
+            this.colorDisplayPanel.Size = new System.Drawing.Size(80, 80);
+            this.colorDisplayPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            // 
+            // colorNameLabel
+            // 
+            this.colorNameLabel.AutoSize = true;
+            this.colorNameLabel.Location = new System.Drawing.Point(15, 240);
+            this.colorNameLabel.Name = "colorNameLabel";
+            this.colorNameLabel.Size = new System.Drawing.Size(83, 13);
+            this.colorNameLabel.Text = "Color: ";
+            // 
+            // rgbValuesLabel
+            // 
+            this.rgbValuesLabel.AutoSize = true;
+            this.rgbValuesLabel.Location = new System.Drawing.Point(15, 260);
+            this.rgbValuesLabel.Name = "rgbValuesLabel";
+            this.rgbValuesLabel.Size = new System.Drawing.Size(85, 13);
+            this.rgbValuesLabel.Text = "RGB: ";
+            // 
             // Form2
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -160,5 +188,8 @@ namespace _1erEntrega
         private System.Windows.Forms.ComboBox comboBoxCamera;
         private System.Windows.Forms.Label ColorIdentity;
         private System.Windows.Forms.PictureBox CameraBox;
+        private System.Windows.Forms.Panel colorDisplayPanel;
+        private System.Windows.Forms.Label colorNameLabel;
+        private System.Windows.Forms.Label rgbValuesLabel;
     }
 }
