@@ -48,11 +48,15 @@
             this.button2 = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.trackBar1 = new System.Windows.Forms.TrackBar();
-            this.pictureBoxHistogram = new System.Windows.Forms.PictureBox();
+            this.pictureBoxHistogramR = new System.Windows.Forms.PictureBox();
+            this.pictureBoxHistogramG = new System.Windows.Forms.PictureBox();
+            this.pictureBoxHistogramB = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogram)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramR)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramG)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramB)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -217,14 +221,35 @@
             this.trackBar1.TabIndex = 4;
             this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
             // 
-            // pictureBoxHistogram
+            // pictureBoxHistogramR
             // 
-            this.pictureBoxHistogram.Location = new System.Drawing.Point(594, 26);
-            this.pictureBoxHistogram.Margin = new System.Windows.Forms.Padding(2);
-            this.pictureBoxHistogram.Name = "pictureBoxHistogram";
-            this.pictureBoxHistogram.Size = new System.Drawing.Size(360, 336);
-            this.pictureBoxHistogram.TabIndex = 6;
-            this.pictureBoxHistogram.TabStop = false;
+            this.pictureBoxHistogramR.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.pictureBoxHistogramR.Location = new System.Drawing.Point(594, 26);
+            this.pictureBoxHistogramR.Margin = new System.Windows.Forms.Padding(2);
+            this.pictureBoxHistogramR.Name = "pictureBoxHistogramR";
+            this.pictureBoxHistogramR.Size = new System.Drawing.Size(360, 110);
+            this.pictureBoxHistogramR.TabIndex = 6;
+            this.pictureBoxHistogramR.TabStop = false;
+            // 
+            // pictureBoxHistogramG
+            // 
+            this.pictureBoxHistogramG.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.pictureBoxHistogramG.Location = new System.Drawing.Point(594, 140);
+            this.pictureBoxHistogramG.Margin = new System.Windows.Forms.Padding(2);
+            this.pictureBoxHistogramG.Name = "pictureBoxHistogramG";
+            this.pictureBoxHistogramG.Size = new System.Drawing.Size(360, 110);
+            this.pictureBoxHistogramG.TabIndex = 7;
+            this.pictureBoxHistogramG.TabStop = false;
+            // 
+            // pictureBoxHistogramB
+            // 
+            this.pictureBoxHistogramB.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.pictureBoxHistogramB.Location = new System.Drawing.Point(594, 254);
+            this.pictureBoxHistogramB.Margin = new System.Windows.Forms.Padding(2);
+            this.pictureBoxHistogramB.Name = "pictureBoxHistogramB";
+            this.pictureBoxHistogramB.Size = new System.Drawing.Size(360, 110);
+            this.pictureBoxHistogramB.TabIndex = 8;
+            this.pictureBoxHistogramB.TabStop = false;
             // 
             // Form3
             // 
@@ -232,7 +257,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(956, 374);
-            this.Controls.Add(this.pictureBoxHistogram);
+            this.Controls.Add(this.pictureBoxHistogramR);
+            this.Controls.Add(this.pictureBoxHistogramG);
+            this.Controls.Add(this.pictureBoxHistogramB);
             this.Controls.Add(this.trackBar1);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.pictureBox1);
@@ -246,7 +273,9 @@
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogram)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramR)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramG)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramB)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -274,6 +303,8 @@
         private System.Windows.Forms.ToolStripMenuItem brilloToolStripMenuItem;
         private System.Windows.Forms.TrackBar trackBar1;
         private System.Windows.Forms.ToolStripMenuItem salirToolStripMenuItem;
-        private System.Windows.Forms.PictureBox pictureBoxHistogram;
+        private System.Windows.Forms.PictureBox pictureBoxHistogramR;
+        private System.Windows.Forms.PictureBox pictureBoxHistogramG;
+        private System.Windows.Forms.PictureBox pictureBoxHistogramB;
     }
 }

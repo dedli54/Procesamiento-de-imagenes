@@ -60,9 +60,15 @@
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.pictureBoxHistogram = new System.Windows.Forms.PictureBox();
+            this.pictureBoxHistogramR = new System.Windows.Forms.PictureBox();
+            this.pictureBoxHistogramG = new System.Windows.Forms.PictureBox();
+            this.pictureBoxHistogramB = new System.Windows.Forms.PictureBox();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogram)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramR)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramG)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramB)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -332,12 +338,45 @@
             this.pictureBoxHistogram.TabIndex = 6;
             this.pictureBoxHistogram.TabStop = false;
             // 
+            // pictureBoxHistogramR
+            // 
+            this.pictureBoxHistogramR.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.pictureBoxHistogramR.Location = new System.Drawing.Point(11, 405);
+            this.pictureBoxHistogramR.Margin = new System.Windows.Forms.Padding(2);
+            this.pictureBoxHistogramR.Name = "pictureBoxHistogramR";
+            this.pictureBoxHistogramR.Size = new System.Drawing.Size(301, 100);
+            this.pictureBoxHistogramR.TabIndex = 8;
+            this.pictureBoxHistogramR.TabStop = false;
+            // 
+            // pictureBoxHistogramG
+            // 
+            this.pictureBoxHistogramG.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.pictureBoxHistogramG.Location = new System.Drawing.Point(11, 510);
+            this.pictureBoxHistogramG.Margin = new System.Windows.Forms.Padding(2);
+            this.pictureBoxHistogramG.Name = "pictureBoxHistogramG";
+            this.pictureBoxHistogramG.Size = new System.Drawing.Size(301, 100);
+            this.pictureBoxHistogramG.TabIndex = 9;
+            this.pictureBoxHistogramG.TabStop = false;
+            // 
+            // pictureBoxHistogramB
+            // 
+            this.pictureBoxHistogramB.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.pictureBoxHistogramB.Location = new System.Drawing.Point(11, 615);
+            this.pictureBoxHistogramB.Margin = new System.Windows.Forms.Padding(2);
+            this.pictureBoxHistogramB.Name = "pictureBoxHistogramB";
+            this.pictureBoxHistogramB.Size = new System.Drawing.Size(301, 100);
+            this.pictureBoxHistogramB.TabIndex = 10;
+            this.pictureBoxHistogramB.TabStop = false;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.ClientSize = new System.Drawing.Size(1291, 726);
+            this.Controls.Add(this.pictureBoxHistogramB);
+            this.Controls.Add(this.pictureBoxHistogramG);
+            this.Controls.Add(this.pictureBoxHistogramR);
             this.Controls.Add(this.button5);
             this.Controls.Add(this.button4);
             this.Controls.Add(this.button2);
@@ -353,6 +392,9 @@
             this.menuStrip1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogram)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramR)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramG)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxHistogramB)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -392,6 +434,9 @@
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
         private System.Windows.Forms.PictureBox pictureBoxHistogram;
+        private System.Windows.Forms.PictureBox pictureBoxHistogramR;
+        private System.Windows.Forms.PictureBox pictureBoxHistogramG;
+        private System.Windows.Forms.PictureBox pictureBoxHistogramB;
     }
 }
 

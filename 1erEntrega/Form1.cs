@@ -693,59 +693,85 @@ namespace _1erEntrega
                     }
                 }
 
-                // Find maximum value for scaling
-                int mayor = 0;
+                // Find maximum values for each channel
+                int mayorR = 0, mayorG = 0, mayorB = 0;
                 for (int n = 0; n < 256; n++)
                 {
-                    if (histogramaR[n] > mayor)
-                        mayor = histogramaR[n];
-                    if (histogramaG[n] > mayor)
-                        mayor = histogramaG[n];
-                    if (histogramaB[n] > mayor)
-                        mayor = histogramaB[n];
+                    if (histogramaR[n] > mayorR)
+                        mayorR = histogramaR[n];
+                    
+                    if (histogramaG[n] > mayorG)
+                        mayorG = histogramaG[n];
+                    
+                    if (histogramaB[n] > mayorB)
+                        mayorB = histogramaB[n];
                 }
 
-                // Create a temporary copy of the histogram arrays for scaling
+                // Scale histograms for each channel
                 int[] scaledHistR = new int[256];
                 int[] scaledHistG = new int[256];
                 int[] scaledHistB = new int[256];
 
-               
                 for (int n = 0; n < 256; n++)
                 {
-                    scaledHistR[n] = (int)((float)histogramaR[n] / (float)mayor * 256.0f);
-                    scaledHistG[n] = (int)((float)histogramaG[n] / (float)mayor * 256.0f);
-                    scaledHistB[n] = (int)((float)histogramaB[n] / (float)mayor * 256.0f);
+                    scaledHistR[n] = mayorR > 0 ? (int)((float)histogramaR[n] / (float)mayorR * 80.0f) : 0;
+                    scaledHistG[n] = mayorG > 0 ? (int)((float)histogramaG[n] / (float)mayorG * 80.0f) : 0;
+                    scaledHistB[n] = mayorB > 0 ? (int)((float)histogramaB[n] / (float)mayorB * 80.0f) : 0;
                 }
 
-                // Create bitmap for histogram
-                Bitmap histogramBitmap = new Bitmap(300, 300); 
-                Graphics g = Graphics.FromImage(histogramBitmap);
+                // Create and display Red histogram
+                Bitmap histogramBitmapR = new Bitmap(301, 100);
+                Graphics gR = Graphics.FromImage(histogramBitmapR);
+                gR.Clear(this.BackColor);
+                Pen plumaR = new Pen(Color.Red, 1);
+                Pen plumaEjesR = new Pen(Color.White);
                 
+                gR.DrawLine(plumaEjesR, 19, 81, 277, 81); // X axis
+                gR.DrawLine(plumaEjesR, 19, 80, 19, 10);  // Y axis
                 
-                g.Clear(this.BackColor); 
-                
-                // Create pens
-                Pen plumaR = new Pen(Color.Red);
-                Pen plumaG = new Pen(Color.Green);
-                Pen plumaB = new Pen(Color.Blue);
-                Pen plumaEjes = new Pen(Color.Coral); 
-                
-                
-                g.DrawLine(plumaEjes, 19, 271, 277, 271);
-                g.DrawLine(plumaEjes, 19, 270, 19, 14);
-                
-                // Draw histogram bars using the scaled values directly
                 for (int n = 0; n < 256; n++)
                 {
-                    g.DrawLine(plumaR, n + 20, 270, n + 20, 270 - scaledHistR[n]);
-                    g.DrawLine(plumaG, n + 20, 270, n + 20, 270 - scaledHistG[n]);
-                    g.DrawLine(plumaB, n + 20, 270, n + 20, 270 - scaledHistB[n]);
+                    gR.DrawLine(plumaR, n + 20, 80, n + 20, 80 - scaledHistR[n]);
                 }
                 
-                // Display histogram
-                pictureBoxHistogram.Image = histogramBitmap;
-                g.Dispose();
+                pictureBoxHistogramR.Image = histogramBitmapR;
+                gR.Dispose();
+
+                // Create and display Green histogram
+                Bitmap histogramBitmapG = new Bitmap(301, 100);
+                Graphics gG = Graphics.FromImage(histogramBitmapG);
+                gG.Clear(this.BackColor);
+                Pen plumaG = new Pen(Color.Green, 1);
+                Pen plumaEjesG = new Pen(Color.White);
+                
+                gG.DrawLine(plumaEjesG, 19, 81, 277, 81); // X axis
+                gG.DrawLine(plumaEjesG, 19, 80, 19, 10);  // Y axis
+                
+                for (int n = 0; n < 256; n++)
+                {
+                    gG.DrawLine(plumaG, n + 20, 80, n + 20, 80 - scaledHistG[n]);
+                }
+                
+                pictureBoxHistogramG.Image = histogramBitmapG;
+                gG.Dispose();
+
+                // Create and display Blue histogram
+                Bitmap histogramBitmapB = new Bitmap(301, 100);
+                Graphics gB = Graphics.FromImage(histogramBitmapB);
+                gB.Clear(this.BackColor);
+                Pen plumaB = new Pen(Color.Blue, 1);
+                Pen plumaEjesB = new Pen(Color.White);
+                
+                gB.DrawLine(plumaEjesB, 19, 81, 277, 81); // X axis
+                gB.DrawLine(plumaEjesB, 19, 80, 19, 10);  // Y axis
+                
+                for (int n = 0; n < 256; n++)
+                {
+                    gB.DrawLine(plumaB, n + 20, 80, n + 20, 80 - scaledHistB[n]);
+                }
+                
+                pictureBoxHistogramB.Image = histogramBitmapB;
+                gB.Dispose();
             }
         }
 
@@ -797,7 +823,26 @@ namespace _1erEntrega
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            // Ensure the application exits completely when the main form is closed
+            // Dispose histogram images if they exist
+            if (pictureBoxHistogramR.Image != null)
+            {
+                pictureBoxHistogramR.Image.Dispose();
+                pictureBoxHistogramR.Image = null;
+            }
+            
+            if (pictureBoxHistogramG.Image != null)
+            {
+                pictureBoxHistogramG.Image.Dispose();
+                pictureBoxHistogramG.Image = null;
+            }
+            
+            if (pictureBoxHistogramB.Image != null)
+            {
+                pictureBoxHistogramB.Image.Dispose();
+                pictureBoxHistogramB.Image = null;
+            }
+            
+            // Clean up any other resources
             Application.Exit();
         }
     }

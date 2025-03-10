@@ -28,17 +28,24 @@ namespace _1erEntrega
 
         private void Form3_Load(object sender, EventArgs e)
         {
-            // Initialize the histogram picturebox with a blank histogram
-            Bitmap emptyHistogram = new Bitmap(300, 300);
+            // Initialize each histogram picturebox with a blank histogram
+            InitializeHistogram(pictureBoxHistogramR, Color.Red);
+            InitializeHistogram(pictureBoxHistogramG, Color.Green);
+            InitializeHistogram(pictureBoxHistogramB, Color.Blue);
+        }
+
+        private void InitializeHistogram(PictureBox histogramBox, Color axisColor)
+        {
+            Bitmap emptyHistogram = new Bitmap(360, 110);
             Graphics g = Graphics.FromImage(emptyHistogram);
             g.Clear(this.BackColor);
             
             // Draw axes
-            Pen plumaEjes = new Pen(Color.Coral);
-            g.DrawLine(plumaEjes, 19, 271, 277, 271);
-            g.DrawLine(plumaEjes, 19, 270, 19, 14);
+            Pen plumaEjes = new Pen(axisColor);
+            g.DrawLine(plumaEjes, 19, 91, 277, 91); // X axis
+            g.DrawLine(plumaEjes, 19, 90, 19, 10);  // Y axis
             
-            pictureBoxHistogram.Image = emptyHistogram;
+            histogramBox.Image = emptyHistogram;
             g.Dispose();
         }
 
@@ -260,10 +267,23 @@ namespace _1erEntrega
             CurrentFrameNo = 0;
             trackBar1.Value = 0;
             
-            if (pictureBoxHistogram.Image != null)
+            // Clean up histogram images
+            if (pictureBoxHistogramR.Image != null)
             {
-                pictureBoxHistogram.Image.Dispose();
-                pictureBoxHistogram.Image = null;
+                pictureBoxHistogramR.Image.Dispose();
+                pictureBoxHistogramR.Image = null;
+            }
+            
+            if (pictureBoxHistogramG.Image != null)
+            {
+                pictureBoxHistogramG.Image.Dispose();
+                pictureBoxHistogramG.Image = null;
+            }
+            
+            if (pictureBoxHistogramB.Image != null)
+            {
+                pictureBoxHistogramB.Image.Dispose();
+                pictureBoxHistogramB.Image = null;
             }
             
             if (pictureBox1.Image != null)
@@ -271,7 +291,7 @@ namespace _1erEntrega
                 pictureBox1.Image.Dispose();
                 pictureBox1.Image = null;
             }
-        
+
             this.Close();
         }
 
@@ -767,58 +787,61 @@ namespace _1erEntrega
                     histogramaB[colorOriginal.B]++;
                 }
             }
-        
-            // Find maximum value for scaling
-            int mayor = 0;
+
+            // Find maximum values for each channel
+            int mayorR = 0, mayorG = 0, mayorB = 0;
             for (int n = 0; n < 256; n++)
             {
-                if (histogramaR[n] > mayor)
-                    mayor = histogramaR[n];
-                if (histogramaG[n] > mayor)
-                    mayor = histogramaG[n];
-                if (histogramaB[n] > mayor)
-                    mayor = histogramaB[n];
+                if (histogramaR[n] > mayorR)
+                    mayorR = histogramaR[n];
+                
+                if (histogramaG[n] > mayorG)
+                    mayorG = histogramaG[n];
+                
+                if (histogramaB[n] > mayorB)
+                    mayorB = histogramaB[n];
             }
-        
-            // Create a temporary copy of the histogram arrays for scaling
-            int[] scaledHistR = new int[256];
-            int[] scaledHistG = new int[256];
-            int[] scaledHistB = new int[256];
-        
-            for (int n = 0; n < 256; n++)
-            {
-                scaledHistR[n] = (int)((float)histogramaR[n] / (float)mayor * 256.0f);
-                scaledHistG[n] = (int)((float)histogramaG[n] / (float)mayor * 256.0f);
-                scaledHistB[n] = (int)((float)histogramaB[n] / (float)mayor * 256.0f);
-            }
-        
-            // Create bitmap for histogram
-            Bitmap histogramBitmap = new Bitmap(300, 300);
-            Graphics g = Graphics.FromImage(histogramBitmap);
+
+            // Create and display Red histogram
+            DisplayChannelHistogram(histogramaR, mayorR, pictureBoxHistogramR, Color.Red);
             
-            // Clear background with form's background color instead of black
+            // Create and display Green histogram
+            DisplayChannelHistogram(histogramaG, mayorG, pictureBoxHistogramG, Color.Green);
+            
+            // Create and display Blue histogram
+            DisplayChannelHistogram(histogramaB, mayorB, pictureBoxHistogramB, Color.Blue);
+        }
+
+        private void DisplayChannelHistogram(int[] histogram, int maxValue, PictureBox histogramBox, Color color)
+        {
+            // Scale the histogram values
+            int[] scaledHist = new int[256];
+            for (int n = 0; n < 256; n++)
+            {
+                scaledHist[n] = maxValue > 0 ? (int)((float)histogram[n] / (float)maxValue * 80.0f) : 0;
+            }
+
+            // Create histogram bitmap
+            Bitmap histogramBitmap = new Bitmap(360, 110);
+            Graphics g = Graphics.FromImage(histogramBitmap);
             g.Clear(this.BackColor);
             
             // Create pens
-            Pen plumaR = new Pen(Color.Red);
-            Pen plumaG = new Pen(Color.Green);
-            Pen plumaB = new Pen(Color.Blue);
-            Pen plumaEjes = new Pen(Color.Coral);
+            Pen pluma = new Pen(color, 1);
+            Pen plumaEjes = new Pen(Color.White);
             
-            // Draw axes - match Form4's coordinates
-            g.DrawLine(plumaEjes, 19, 271, 277, 271);
-            g.DrawLine(plumaEjes, 19, 270, 19, 14);
+            // Draw axes
+            g.DrawLine(plumaEjes, 19, 91, 277, 91); // X axis
+            g.DrawLine(plumaEjes, 19, 90, 19, 10);  // Y axis
             
-            // Draw histogram bars using the scaled values directly
+            // Draw histogram bars
             for (int n = 0; n < 256; n++)
             {
-                g.DrawLine(plumaR, n + 20, 270, n + 20, 270 - scaledHistR[n]);
-                g.DrawLine(plumaG, n + 20, 270, n + 20, 270 - scaledHistG[n]);
-                g.DrawLine(plumaB, n + 20, 270, n + 20, 270 - scaledHistB[n]);
+                g.DrawLine(pluma, n + 20, 90, n + 20, 90 - scaledHist[n]);
             }
             
-            // Display histogram
-            pictureBoxHistogram.Image = histogramBitmap;
+            // Set the image to the picturebox
+            histogramBox.Image = histogramBitmap;
             g.Dispose();
         }
     }
