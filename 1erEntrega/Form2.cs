@@ -69,7 +69,7 @@ namespace _1erEntrega
                         // Only clear the color display if no pixel has been clicked
                         if (!hasClickedPoint)
                         {
-                            // Clear color display when no pixel is selected
+                            // Clear color display when no pixel is selected .
                             colorDisplayPanel.BackColor = Color.Gray;
                             colorNameLabel.Text = "Color: (Ninguno)";
                             rgbValuesLabel.Text = "RGB: --";
