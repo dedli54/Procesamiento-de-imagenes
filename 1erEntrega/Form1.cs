@@ -10,6 +10,9 @@ using System.Windows.Forms;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
+using System.IO;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace _1erEntrega
 {
@@ -903,6 +906,58 @@ namespace _1erEntrega
             }
             
             Application.Exit();
+        }
+
+        private void buttonOpenManual_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string manualPath = string.Empty;
+                
+                
+                string resourcePath = Path.Combine(Application.StartupPath, "Resources", "Manual de usuario.pdf");
+                if (File.Exists(resourcePath))
+                {
+                    manualPath = resourcePath;
+                }
+                else
+                {
+                    string projectPath = Path.GetDirectoryName(Application.StartupPath);
+                    if (projectPath != null)
+                    {
+                        string altPath = Path.Combine(projectPath, "Resources", "Manual de usuario.pdf");
+                        if (File.Exists(altPath))
+                        {
+                            manualPath = altPath;
+                        }
+                    }
+                }
+                
+                if (string.IsNullOrEmpty(manualPath))
+                {
+                    string directPath = Path.Combine(Application.StartupPath, "..", "..", "Resources", "Manual de usuario.pdf");
+                    directPath = Path.GetFullPath(directPath);
+                    if (File.Exists(directPath))
+                    {
+                        manualPath = directPath;
+                    }
+                }
+                
+                if (string.IsNullOrEmpty(manualPath))
+                {
+                    MessageBox.Show("Manual not found at: " + Path.Combine(Application.StartupPath, "Resources", "Manual de usuario.pdf") + 
+                                  "\nMake sure the file exists or add it to the Resources folder.",
+                                  "File Not Found", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+                
+                Process.Start(manualPath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error opening manual: " + ex.Message, 
+                               "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }
